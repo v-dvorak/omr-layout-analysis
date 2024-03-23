@@ -24,6 +24,11 @@ parser.add_argument("-t", "--train", action="store_true", help="Create \"train\"
 parser.add_argument("-c", "--count", default=-1, help="How many files from each dataset will be processed. Default is all.")
 parser.add_argument("--tag", action="store_true", help="Tags generated files with dataset nickname. Example: \"al2_filename\".")
 
+parser.add_argument("-l","--labels", nargs="+", help="Which labels to process. 0 : system_measures, 1 : stave_measures, 2 : staves. Default is all.")
+parser.add_argument("-s", "--dontsort", action="store_true", help="DONT sort labels by default numerical tags. Labels are sorted in ascending order by default.")
+
+
+# DATASETS INIT
 dataset_database = [AudioLabs_v2(), MuscimaPP()]
 datasets_to_work_with = []
 
@@ -34,12 +39,29 @@ for current_dataset in dataset_database:
 
 args = parser.parse_args()
 
+# get dataset that will be processed
 for current_dataset in dataset_database:
     if getattr(args, current_dataset.nickname):
         datasets_to_work_with.append(current_dataset)
 
-for dat in datasets_to_work_with:
-    print(dat.name)
+if args.verbose:
+    print("Following datasets will be processed:")
+    for dat in datasets_to_work_with:
+        print(dat.name)
+
+# LABELS INIT
+POSSIBLE_LABELS = ["system_measures", "stave_measures", "staves"]
+LABELS = []
+
+if args.labels == None:
+    LABELS = POSSIBLE_LABELS
+else:
+    args.labels = [int(x) for x in args.labels]
+    if not args.dontsort:
+        args.labels.sort()
+    args.labels = make_list_unique(args.labels)
+    for i in args.labels:
+        LABELS.append(POSSIBLE_LABELS[i])
 
 """
 AudioLabs structure:
@@ -60,18 +82,12 @@ normalized!!
 class x_center y_center width height
 """
 
-LABELS = {0 : "system_measures",
-          1 : "stave_measures",
-          2 : "staves"}
-LABELS = ["system_measures", "stave_measures", "staves"]
-LABELS = ["system_measures"] #, "stave_measures", "staves"]
-
 TRAIN_DATA_COUNT = int(args.count)
 # set directories
 
 # set home for better navigation, everything is done in this working directory
 HOME = os.path.abspath(os.path.join(args.output, ".."))
-print(get_processed_number(HOME, args.output))
+# print(get_processed_number(HOME, args.output))
 processed_dir = get_processed_number(HOME, args.output)
 # create file structure to save data to
 img_dir, labels_dir = create_file_structure(processed_dir, train=args.train)

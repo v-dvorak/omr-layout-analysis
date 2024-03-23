@@ -6,6 +6,17 @@ from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
 
+def make_list_unique(inp_list: list[any]) -> list[any]:
+    # initialize a null list
+    unique_list = []
+ 
+    # traverse for all elements
+    for x in inp_list:
+        # check if exists in unique_list or not
+        if x not in unique_list:
+            unique_list.append(x)
+    return unique_list
+
 def download_dataset(zipurl: str, where: str, dataset_name: str) -> None:
     if os.path.exists(os.path.join(where, dataset_name)):
         print("Dataset has been already downloaded.")
