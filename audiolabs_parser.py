@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+
+import shutil
+import os
+from tqdm import tqdm
+import argparse
+from parser_utils import *
+from dataset_utils import *
+import omrdatasettools
+
+# ARGUMENT SETUP
+# TODO: description
+parser = argparse.ArgumentParser(
+    prog="OMR Dataset Parser",
+    description="Parses data from given OMR datasets.",
+    epilog=""
+    )
+
+# Required positional argument: file names
+parser.add_argument("output", help="Name and path to store the final dataset at.")
+
+parser.add_argument("-v", "--verbose", action="store_true", help="Make script verbose")
+parser.add_argument("-t", "--train", action="store_true", help="Create \"train\" subfolders")
+parser.add_argument("-c", "--count", default=-1, help="How many files from each dataset will be processed. Default is all.")
+parser.add_argument("--tag", action="store_true", help="Tags generated files with dataset nickname. Example: \"al2_filename\".")
+
+dataset_database = [AudioLabs_v2(), MuscimaPP()]
+datasets_to_work_with = []
+
+for current_dataset in dataset_database:
+    parser.add_argument("--" + current_dataset.nickname,
+                        action="store_true",
+                        help=f"Includes the {current_dataset.name} dataset into final dataset.")
+
+args = parser.parse_args()
+
+for current_dataset in dataset_database:
+    if getattr(args, current_dataset.nickname):
+        datasets_to_work_with.append(current_dataset)
+
+for dat in datasets_to_work_with:
+    print(dat.name)
+
+"""
+AudioLabs structure:
+{
+    "width": 751,
+    "height": 1057,
+    "system_measures": [
+        {
+            "left": 77,
+            "top": 232,
+            "height": 102,
+            "width": 111
+        },
+...
+
+YOLO structure:
+normalized!!
+class x_center y_center width height
+"""
+
+LABELS = {0 : "system_measures",
+          1 : "stave_measures",
+          2 : "staves"}
+LABELS = ["system_measures", "stave_measures", "staves"]
+LABELS = ["system_measures"] #, "stave_measures", "staves"]
+
+TRAIN_DATA_COUNT = int(args.count)
+# set directories
+
+# set home for better navigation, everything is done in this working directory
+HOME = os.path.abspath(os.path.join(args.output, ".."))
+print(get_processed_number(HOME, args.output))
+processed_dir = get_processed_number(HOME, args.output)
+# create file structure to save data to
+img_dir, labels_dir = create_file_structure(processed_dir, train=args.train)
+create_yaml_file_for_yolo(processed_dir, img_dir, LABELS, args.verbose)
+
+for dat_pos, current_dataset in enumerate(datasets_to_work_with):
+    print()
+    print(f"Processing {current_dataset.name}, {dat_pos+1}/{len(datasets_to_work_with)}")
+    
+    current_dataset.download_dataset(HOME)
+    
+    files_to_skip = current_dataset.files_to_skip
+    tag = ""
+    if args.tag: tag = current_dataset.nickname + "_"
+
+    i = 0
+    verbose = False
+    img_processed = 0
+    labels_processed = 0
+    for subdir, dirs, files in tqdm(os.walk(os.path.join(HOME, current_dataset.name))):
+        for file in files:
+            if file in files_to_skip: continue
+
+            if verbose: print(os.path.join(subdir, file))
+
+            if file.endswith(".json") and (labels_processed < TRAIN_DATA_COUNT or args.count == -1):
+                data = read_json(os.path.join(subdir, file))
+                annot = current_dataset.parse_json_to_yolo(data, LABELS)
+                write_rows_to_file(annot, os.path.join(labels_dir, tag + file.split(".")[0] + ".txt"))
+                labels_processed += 1
+                
+            elif file.endswith(".png") and (img_processed < TRAIN_DATA_COUNT or args.count == -1):
+                shutil.copy(os.path.join(subdir, file), os.path.join(img_dir, tag + file))
+                img_processed += 1
+            
+            if not args.count == -1 and not labels_processed < TRAIN_DATA_COUNT and not img_processed < TRAIN_DATA_COUNT:
+                break
+        else:
+            continue
+        break
+
+    print(f"Dataset {current_dataset.name} processed successfully, processed total of {img_processed} images.")
+
+print("Job finished successfully, results are in:", os.path.abspath(processed_dir))

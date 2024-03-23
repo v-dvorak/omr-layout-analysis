@@ -1,0 +1,4 @@
+numpy==1.24.2
+omrdatasettools==1.4.0
+PyYAML==6.0.1
+tqdm==4.66.1
