@@ -20,7 +20,8 @@ class Dataset_OMR:
         """
         Downloads dataset using the `omrdatasettools` library. Stores it into given output file.        
         """
-        if dataset_name == -1: dataset_name = self.name
+        if dataset_name == -1:
+            dataset_name = self.name
         download_path = os.path.join(where, dataset_name)
         if os.path.exists(download_path):
             return
