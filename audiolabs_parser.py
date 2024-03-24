@@ -29,8 +29,10 @@ parser.add_argument("-s", "--dontsort", action="store_true", help="DONT sort lab
 
 # DATASETS INIT
 dataset_database = Dataset_OMR.__subclasses__() # Python magic
-datasets_to_work_with = []
+for i in range(len(dataset_database)):
+    dataset_database[i] = dataset_database[i]()
 
+# add arguments for datasets
 for current_dataset in dataset_database:
     parser.add_argument("--" + current_dataset.nickname,
                         action="store_true",
@@ -39,6 +41,7 @@ for current_dataset in dataset_database:
 args = parser.parse_args()
 
 # get dataset that will be processed
+datasets_to_work_with = []
 for current_dataset in dataset_database:
     if getattr(args, current_dataset.nickname):
         datasets_to_work_with.append(current_dataset)
