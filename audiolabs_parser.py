@@ -11,12 +11,12 @@ from dataset_utils import Dataset_OMR
 # TODO: description
 parser = argparse.ArgumentParser(
     prog="OMR Dataset Parser",
-    description="Parses data from given OMR datasets.",
+    description="Compiles chosen OMR datasets into a big one for future use for training the YOLOv8 model.",
     epilog=""
     )
 
 # Required positional argument: output file name
-parser.add_argument("output", help="Name and path to store the final dataset at.")
+parser.add_argument("output", help="Path to store the final dataset at.")
 
 parser.add_argument("-v", "--verbose", action="store_true", help="Make script verbose")
 parser.add_argument("-t", "--train", action="store_true", help="Create \"train\" subfolders")
