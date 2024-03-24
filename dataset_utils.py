@@ -1,8 +1,6 @@
 import os
 from omrdatasettools import OmrDataset, Downloader
-from parser_utils import *
-
-# Downloader().download_and_extract_dataset(OmrDataset.CvcMuscima_MultiConditionAligned, "." )
+import parser_utils
 
 class Dataset_OMR:
     name = ""
@@ -75,7 +73,7 @@ class AudioLabs_v2(Dataset_OMR):
         Downloader().download_and_extract_dataset(OmrDataset.AudioLabs_v2, download_path),
 
     def _get_coords(self, image_height: int, image_width: int, record: dict) -> list[float]:
-        return get_coords_relative_to_image_size(image_height, image_width,
+        return parser_utils.get_coords_relative_to_image_size(image_height, image_width,
                                                 record["left"],
                                                 record["top"],
                                                 record["height"],
@@ -94,7 +92,7 @@ class MuscimaPP(Dataset_OMR):
         Downloader().download_and_extract_dataset(OmrDataset.MuscimaPlusPlus_Images, download_path)
 
     def _get_coords(self, image_height: int, image_width: int, record: dict) -> list[float]:
-        return get_coords_relative_to_image_size(image_height, image_width,
+        return parser_utils.get_coords_relative_to_image_size(image_height, image_width,
                                                 record["left"],
                                                 record["top"],
                                                 abs(record["bottom"] - record["top"]),
