@@ -6,7 +6,6 @@ from tqdm import tqdm
 import argparse
 from parser_utils import *
 from dataset_utils import *
-import omrdatasettools
 
 # ARGUMENT SETUP
 # TODO: description
@@ -16,7 +15,7 @@ parser = argparse.ArgumentParser(
     epilog=""
     )
 
-# Required positional argument: file names
+# Required positional argument: output file name
 parser.add_argument("output", help="Name and path to store the final dataset at.")
 
 parser.add_argument("-v", "--verbose", action="store_true", help="Make script verbose")
@@ -29,7 +28,7 @@ parser.add_argument("-s", "--dontsort", action="store_true", help="DONT sort lab
 
 
 # DATASETS INIT
-dataset_database = [AudioLabs_v2(), MuscimaPP()]
+dataset_database = Dataset_OMR.__subclasses__() # Python magic
 datasets_to_work_with = []
 
 for current_dataset in dataset_database:
@@ -44,6 +43,10 @@ for current_dataset in dataset_database:
     if getattr(args, current_dataset.nickname):
         datasets_to_work_with.append(current_dataset)
 
+if datasets_to_work_with == []:
+    print("No datasets were specified, quitting job.")
+    quit()
+
 if args.verbose:
     print("Following datasets will be processed:")
     for dat in datasets_to_work_with:
@@ -53,7 +56,7 @@ if args.verbose:
 POSSIBLE_LABELS = ["system_measures", "stave_measures", "staves"]
 LABELS = []
 
-if args.labels == None:
+if args.labels is None:
     LABELS = POSSIBLE_LABELS
 else:
     args.labels = [int(x) for x in args.labels]
@@ -62,6 +65,7 @@ else:
     args.labels = make_list_unique(args.labels)
     for i in args.labels:
         LABELS.append(POSSIBLE_LABELS[i])
+
 
 """
 AudioLabs structure:
@@ -81,18 +85,16 @@ YOLO structure:
 normalized!!
 class x_center y_center width height
 """
-
+# DIRECTORIES INIT
 TRAIN_DATA_COUNT = int(args.count)
-# set directories
-
 # set home for better navigation, everything is done in this working directory
 HOME = os.path.abspath(os.path.join(args.output, ".."))
-# print(get_processed_number(HOME, args.output))
-processed_dir = get_processed_number(HOME, args.output)
 # create file structure to save data to
+processed_dir = get_processed_number(HOME, args.output)
 img_dir, labels_dir = create_file_structure(processed_dir, train=args.train)
 create_yaml_file_for_yolo(processed_dir, img_dir, LABELS, args.verbose)
 
+# MAIN LOOP
 for dat_pos, current_dataset in enumerate(datasets_to_work_with):
     print()
     print(f"Processing {current_dataset.name}, {dat_pos+1}/{len(datasets_to_work_with)}")
