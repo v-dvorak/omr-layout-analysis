@@ -7,7 +7,7 @@ class Dataset_OMR:
     name = ""
     nickname = ""
 
-    def _download_proc(self, download_path: str):
+    def _download_proc(self, download_path: Path):
         """
         Download procedure for getting the neccessary data using `OmrDataset` nad `Downloader` from `omrdatasettools`.
         
@@ -65,10 +65,10 @@ class Dataset_OMR:
                 annot.append([i, *self._get_coords(image_height, image_width, record)])
         return annot
     
-    def process_image(self, img_path: str, output_path: str):
+    def process_image(self, img_path: Path, output_path: Path):
         shutil.copy(img_path, output_path)
     
-    def process_label(self, label_path: str, output_path: str, labels: list[str]):
+    def process_label(self, label_path: Path, output_path: Path, labels: list[str]):
         data = parser_utils.read_json(label_path)
         annot = self.parse_json_to_yolo(data, labels)
         parser_utils.write_rows_to_file(annot, output_path)
@@ -78,7 +78,7 @@ class AudioLabs_v2(Dataset_OMR):
     nickname = "al2"
     files_to_skip = ["all_annotations.json"]
 
-    def _download_proc(self, download_path: str):
+    def _download_proc(self, download_path: Path):
         Downloader().download_and_extract_dataset(OmrDataset.AudioLabs_v2, download_path),
 
     def _get_coords(self, image_height: int, image_width: int, record: dict) -> list[float]:
@@ -96,7 +96,7 @@ class MuscimaPP(Dataset_OMR):
                      "training_measure_annotations.json",
                      "validation_measure_annotations.json"]
 
-    def _download_proc(self, download_path: str):
+    def _download_proc(self, download_path: Path):
         Downloader().download_and_extract_dataset(OmrDataset.MuscimaPlusPlus_MeasureAnnotations, download_path),
         Downloader().download_and_extract_dataset(OmrDataset.MuscimaPlusPlus_Images, download_path)
 

@@ -75,8 +75,8 @@ TRAIN_DATA_COUNT = int(args.count)
 HOME = Path.absolute(Path(args.output) / "..")
 print(HOME)
 # create file structure to save data to
-processed_dir = parser_utils.get_processed_number(HOME, args.output)
-img_dir, labels_dir = parser_utils.create_file_structure(processed_dir, train=args.train)
+processed_dir = parser_utils.get_processed_number(HOME, Path(args.output))
+img_dir, labels_dir = parser_utils.create_file_structure(Path(processed_dir), train=args.train)
 parser_utils.create_yaml_file_for_yolo(processed_dir, img_dir, LABELS, verbose=args.verbose)
 
 # MAIN LOOP
@@ -99,11 +99,11 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
         file_name = all_images_paths[i].parts[-1]
         current_dataset.process_image(
                     all_images_paths[i],
-                    Path(img_dir + "/" + tag + file_name)
+                    img_dir / (tag + file_name)
                 )
         current_dataset.process_label(
                     all_labels_paths[i],
-                    Path(labels_dir + "/" + tag + file_name.split(".")[0] + ".txt"),
+                    labels_dir / (tag + file_name.split(".")[0] + ".txt"),
                     LABELS
                 )
 

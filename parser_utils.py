@@ -1,7 +1,7 @@
 import numpy as np
 import json
-import os
 import yaml
+from pathlib import Path
 
 def make_list_unique(inp_list: list[any]) -> list[any]:
     """
@@ -23,7 +23,7 @@ def make_list_unique(inp_list: list[any]) -> list[any]:
             unique_list.append(x)
     return unique_list
 
-def get_coords_relative_to_image_size(image_height: int, image_width: int, left: int, top: int, height: int, width: int) -> list[int]:
+def get_coords_relative_to_image_size(image_height: int, image_width: int, left: int, top: int, height: int, width: int) -> list[float]:
     """
     Takes coordinates in "AudioLabs v2" notation and returns them in YOLO format.
 
@@ -41,7 +41,7 @@ def get_coords_relative_to_image_size(image_height: int, image_width: int, left:
         6,
     )
 
-def read_json(filename: str) -> dict:
+def read_json(filename: Path) -> dict:
     """
     Reads json file into a dict.
 
@@ -53,7 +53,7 @@ def read_json(filename: str) -> dict:
         return json.load(file)
 
 
-def write_rows_to_file(data: list[list[int]], filename: str, dato_sep="\t", record_sep="\n"):
+def write_rows_to_file(data: list[list[int]], filename: Path, dato_sep="\t", record_sep="\n"):
     """
     Write list of lists (list of annotation) to a specified file.
 
@@ -74,10 +74,12 @@ def write_rows_to_file(data: list[list[int]], filename: str, dato_sep="\t", reco
             file.write(dato_sep.join(line))
             file.write(record_sep)
 
+def get_all_subdirs(working_dir: Path) -> list[Path]:
+    return [x for x in working_dir.iterdir() if x.is_dir()]
 
-def get_processed_number(working_dir: str, folder_name: str) -> str:
+def get_processed_number(working_dir: Path, folder_name: Path) -> Path:
     """
-    Checks for files with same name inside given folder. Returns the new name of a files.
+    Checks for files with same name inside given folder. Returns the new name of a file with a full path
 
     Example:
     If `name`, `name1`, `name2` are in directory, `name3` is returned.
@@ -86,25 +88,26 @@ def get_processed_number(working_dir: str, folder_name: str) -> str:
     - working_dir: directory in which the function will search in
     - folder_name: the `name` part of returned string
     """
-    # clean up string, mainly bcs of Windows shenanigans
-    folder_name = folder_name.replace("/", "")
-    folder_name = folder_name.replace("\\", "")
-    folder_name = folder_name.replace(".", "")
+    # clean up folder name string, mainly bcs of Windows shenanigans
+    folder_name: str = folder_name.parts[-1]
 
-    all_folders = os.listdir(working_dir)
-    all_folders = [lis for lis in all_folders if folder_name in lis]
-    all_folders.sort()
-    if all_folders == []:
+    all_folders: list[Path] = get_all_subdirs(working_dir)
+    # get ONLY folder names
+    all_folder_names = [str(x.parts[-1]) for x in all_folders]
+    # clean up
+    all_folder_names = [lis for lis in all_folder_names if folder_name in lis]
+    if all_folder_names == []:
         return folder_name
     else:
-        latest = all_folders[-1].replace(folder_name, "")
+        all_folder_names.sort()
+        latest = all_folder_names[-1].replace(folder_name, "")
         if latest != "":
             latest = str(int(latest) + 1)
         else:
             latest = "1"
-        return folder_name + latest
+        return working_dir / (folder_name + latest)
 
-def create_file_structure(processed_dir: str, verbose: bool = False, train: bool = False) -> tuple[str, str]:
+def create_file_structure(processed_dir: Path, verbose: bool = False, train: bool = False) -> tuple[Path, Path]:
     """
     Creates folders for data.
 
@@ -115,35 +118,18 @@ def create_file_structure(processed_dir: str, verbose: bool = False, train: bool
     Returns:
     - locations to store images and labels to
     """
-    img_dir = os.path.join(processed_dir, "images")
-    labels_dir = os.path.join(processed_dir, "labels")
-    if not os.path.exists(processed_dir):
-        os.makedirs(processed_dir)
-        if verbose:
-            print("Created file:", processed_dir)
-    if not os.path.exists(img_dir):
-        os.makedirs(img_dir)
-        if verbose:
-            print("Created file:", img_dir)
-    if not os.path.exists(labels_dir):
-        os.makedirs(labels_dir)
-        if verbose:
-            print("Created file:", labels_dir)
-
+    img_dir = processed_dir / "images"
+    labels_dir = processed_dir / "labels"
     if train:
-        img_dir = os.path.join(img_dir, "train")
-        labels_dir = os.path.join(labels_dir, "train")
-        if not os.path.exists(img_dir):
-            os.makedirs(img_dir)
-            if verbose:
-                print("Created file:", img_dir)
-        if not os.path.exists(labels_dir):
-            os.makedirs(labels_dir)
-            if verbose:
-                print("Created file:", labels_dir)
+        img_dir = img_dir / "train"
+        labels_dir = labels_dir / "train"
+    
+    Path.mkdir(img_dir, parents=True)
+    Path.mkdir(labels_dir, parents=True)
+
     return img_dir, labels_dir
 
-def create_yaml_file_for_yolo(final_dataset_dir: str, img_dir_train: str, labels: list[str], file_name: str = "config", img_dir_val: str = None, verbose: bool = False):
+def create_yaml_file_for_yolo(final_dataset_dir: Path, img_dir_train: Path, labels: list[str], img_dir_val: Path = None, file_name: str = "config", verbose: bool = False):
     """
     Creates .yaml file in YOLO format neccessary for model training.
 
@@ -157,9 +143,9 @@ def create_yaml_file_for_yolo(final_dataset_dir: str, img_dir_train: str, labels
     """
     if img_dir_val is None:
         img_dir_val = img_dir_train
-    final_dataset_dir = os.path.abspath(final_dataset_dir)
-    img_dir_train = os.path.abspath(img_dir_train)
-    img_dir_val = os.path.abspath(img_dir_val)
+    final_dataset_dir = str(final_dataset_dir.absolute().resolve())
+    img_dir_train = str(img_dir_train.absolute().resolve())
+    img_dir_val = str(img_dir_val.absolute().resolve())
     names = {}
     for i, label in enumerate(labels):
         names[i] = label
@@ -171,8 +157,8 @@ def create_yaml_file_for_yolo(final_dataset_dir: str, img_dir_train: str, labels
         "names": names,
     }
 
-    file_location = os.path.join(final_dataset_dir, f"{file_name}.yaml")
+    file_location = Path(final_dataset_dir + "/" + f"{file_name}.yaml")
     with open(file_location, "w") as file:
         yaml.dump(data, file, sort_keys=False)
     if verbose:
-        print(f"{file_name}.yaml at {os.path.abspath(file_location)} created successfully.")
+        print(f"{file_name}.yaml at {str(file_location.absolute())} created successfully.")
