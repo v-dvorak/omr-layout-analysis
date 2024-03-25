@@ -1,6 +1,7 @@
 import os
 from omrdatasettools import OmrDataset, Downloader
 import parser_utils
+import shutil
 
 class Dataset_OMR:
     name = ""
@@ -63,6 +64,14 @@ class Dataset_OMR:
             for record in data[label]:
                 annot.append([i, *self._get_coords(image_height, image_width, record)])
         return annot
+    
+    def process_image(self, img_path: str, output_path: str) -> None:
+        shutil.copy(img_path, output_path)
+    
+    def process_label(self, label_path: str, output_path: str, labels: list[str]) -> None:
+        data = parser_utils.read_json(label_path)
+        annot = self.parse_json_to_yolo(data, labels)
+        parser_utils.write_rows_to_file(annot, output_path)
 
 class AudioLabs_v2(Dataset_OMR):
     name = "AudioLabs_v2"

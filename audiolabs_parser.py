@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import shutil
 import os
 from tqdm import tqdm
 import argparse
@@ -41,7 +40,7 @@ for current_dataset in dataset_database:
 args = parser.parse_args()
 
 # get dataset that will be processed
-datasets_to_work_with = []
+datasets_to_work_with: list[Dataset_OMR] = []
 for current_dataset in dataset_database:
     if getattr(args, current_dataset.nickname):
         datasets_to_work_with.append(current_dataset)
@@ -57,7 +56,7 @@ if args.verbose:
 
 # LABELS INIT
 POSSIBLE_LABELS = ["system_measures", "stave_measures", "staves"]
-LABELS = []
+LABELS: list[str] = []
 
 if args.labels is None:
     LABELS = POSSIBLE_LABELS
@@ -103,13 +102,18 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
                 print(os.path.join(subdir, file))
 
             if file.endswith(".json") and (labels_processed < TRAIN_DATA_COUNT or args.count == -1):
-                data = parser_utils.read_json(os.path.join(subdir, file))
-                annot = current_dataset.parse_json_to_yolo(data, LABELS)
-                parser_utils.write_rows_to_file(annot, os.path.join(labels_dir, tag + file.split(".")[0] + ".txt"))
+                current_dataset.process_label(
+                    os.path.join(subdir, file),
+                    os.path.join(labels_dir, tag + file.split(".")[0] + ".txt"),
+                    LABELS
+                )
                 labels_processed += 1
                 
             elif file.endswith(".png") and (img_processed < TRAIN_DATA_COUNT or args.count == -1):
-                shutil.copy(os.path.join(subdir, file), os.path.join(img_dir, tag + file))
+                current_dataset.process_image(
+                    os.path.join(subdir, file),
+                    os.path.join(img_dir, tag + file)
+                )
                 img_processed += 1
             
             if not args.count == -1 and not labels_processed < TRAIN_DATA_COUNT and not img_processed < TRAIN_DATA_COUNT:
