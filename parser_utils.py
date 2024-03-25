@@ -94,18 +94,31 @@ def get_processed_number(working_dir: Path, folder_name: Path) -> Path:
     all_folders: list[Path] = get_all_subdirs(working_dir)
     # get ONLY folder names
     all_folder_names = [str(x.parts[-1]) for x in all_folders]
-    # clean up
-    all_folder_names = [lis for lis in all_folder_names if folder_name in lis]
+    print(all_folder_names)
+    # easiest case
+    # preprocess for transformation to ints
+    all_folder_names = [x.replace(folder_name, "") for x in all_folder_names if x.startswith(folder_name)]
     if all_folder_names == []:
-        return folder_name
+        latest = ""
     else:
-        all_folder_names.sort()
-        latest = all_folder_names[-1].replace(folder_name, "")
-        if latest != "":
-            latest = str(int(latest) + 1)
+        print(all_folder_names)
+        # clean up to ints
+        clean: list[int] = []
+        for x in all_folder_names:
+            try:
+                temp = int(x)
+                clean.append(temp)
+            except:  # noqa: E722
+                pass
+        
+        clean.sort()
+        print(clean)
+        if clean == []:
+            latest = str(1)
         else:
-            latest = "1"
-        return working_dir / (folder_name + latest)
+            latest = str(clean[-1] + 1)
+
+    return working_dir / (folder_name + latest)
 
 def create_file_structure(processed_dir: Path, verbose: bool = False, train: bool = False) -> tuple[Path, Path]:
     """
