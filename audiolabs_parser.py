@@ -109,4 +109,4 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
 
     print(f"Dataset {current_dataset.name} processed successfully, processed total of {TRAIN_DATA_COUNT} images.")
 
-print("Job finished successfully, results are in:", Path(processed_dir).absolute())
+print("Job finished successfully, results are in:", Path(processed_dir).absolute().resolve())
