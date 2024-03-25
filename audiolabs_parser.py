@@ -19,7 +19,7 @@ parser.add_argument("output", help="Path to store the final dataset at.")
 
 parser.add_argument("-v", "--verbose", action="store_true", help="Make script verbose")
 parser.add_argument("-t", "--train", action="store_true", help="Create \"train\" subfolders")
-parser.add_argument("-c", "--count", default=-1, help="How many files from each dataset will be processed. Default is all.")
+parser.add_argument("-c", "--count", default=None, help="How many files from each dataset will be processed. Default is all.")
 parser.add_argument("--tag", action="store_true", help="Tags generated files with dataset nickname. Example: \"al2_filename\".")
 
 parser.add_argument("-l","--labels", nargs="+", help="Which labels to process. 0 : system_measures, 1 : stave_measures, 2 : staves. Default is all.")
@@ -101,7 +101,7 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
             if verbose:
                 print(os.path.join(subdir, file))
 
-            if file.endswith(".json") and (labels_processed < TRAIN_DATA_COUNT or args.count == -1):
+            if file.endswith(".json") and (labels_processed < TRAIN_DATA_COUNT or args.count is None):
                 current_dataset.process_label(
                     os.path.join(subdir, file),
                     os.path.join(labels_dir, tag + file.split(".")[0] + ".txt"),
@@ -109,14 +109,14 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
                 )
                 labels_processed += 1
                 
-            elif file.endswith(".png") and (img_processed < TRAIN_DATA_COUNT or args.count == -1):
+            elif file.endswith(".png") and (img_processed < TRAIN_DATA_COUNT or args.count is None):
                 current_dataset.process_image(
                     os.path.join(subdir, file),
                     os.path.join(img_dir, tag + file)
                 )
                 img_processed += 1
             
-            if not args.count == -1 and not labels_processed < TRAIN_DATA_COUNT and not img_processed < TRAIN_DATA_COUNT:
+            if args.count is not None and not labels_processed < TRAIN_DATA_COUNT and not img_processed < TRAIN_DATA_COUNT:
                 break
         else:
             continue

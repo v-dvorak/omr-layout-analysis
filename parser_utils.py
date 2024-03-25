@@ -53,7 +53,7 @@ def read_json(filename: str) -> dict:
         return json.load(file)
 
 
-def write_rows_to_file(data: list[list[int]], filename: str, dato_sep="\t", record_sep="\n") -> None:
+def write_rows_to_file(data: list[list[int]], filename: str, dato_sep="\t", record_sep="\n"):
     """
     Write list of lists (list of annotation) to a specified file.
 
@@ -143,7 +143,7 @@ def create_file_structure(processed_dir: str, verbose: bool = False, train: bool
                 print("Created file:", labels_dir)
     return img_dir, labels_dir
 
-def create_yaml_file_for_yolo(final_dataset_dir: str, img_dir_train: str, labels: list[str], file_name: str = "config", img_dir_val: str = -1, verbose: bool = False) -> None:
+def create_yaml_file_for_yolo(final_dataset_dir: str, img_dir_train: str, labels: list[str], file_name: str = "config", img_dir_val: str = None, verbose: bool = False):
     """
     Creates .yaml file in YOLO format neccessary for model training.
 
@@ -155,7 +155,7 @@ def create_yaml_file_for_yolo(final_dataset_dir: str, img_dir_train: str, labels
         - `1: label2`
         - ...
     """
-    if img_dir_val == -1:
+    if img_dir_val is None:
         img_dir_val = img_dir_train
     final_dataset_dir = os.path.abspath(final_dataset_dir)
     img_dir_train = os.path.abspath(img_dir_train)
