@@ -75,7 +75,7 @@ HOME = os.path.abspath(os.path.join(args.output, ".."))
 # create file structure to save data to
 processed_dir = parser_utils.get_processed_number(HOME, args.output)
 img_dir, labels_dir = parser_utils.create_file_structure(processed_dir, train=args.train)
-parser_utils.create_yaml_file_for_yolo(processed_dir, img_dir, LABELS, args.verbose)
+parser_utils.create_yaml_file_for_yolo(processed_dir, img_dir, LABELS, verbose=args.verbose)
 
 # MAIN LOOP
 for dat_pos, current_dataset in enumerate(datasets_to_work_with):
