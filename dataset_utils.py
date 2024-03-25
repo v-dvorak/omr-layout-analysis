@@ -1,7 +1,7 @@
-import os
 from omrdatasettools import OmrDataset, Downloader
 import parser_utils
 import shutil
+from pathlib import Path
 
 class Dataset_OMR:
     name = ""
@@ -15,17 +15,17 @@ class Dataset_OMR:
         """
         raise NotImplementedError
 
-    def download_dataset(self, where: str, dataset_name: str = None):
+    def download_dataset(self, where: Path, dataset_name: Path = None):
         """
         Downloads dataset using the `omrdatasettools` library. Stores it into given output file.        
         """
         if dataset_name is None:
             dataset_name = self.name
-        download_path = os.path.join(where, dataset_name)
-        if os.path.exists(download_path):
+        download_path: Path = where / dataset_name #os.path.join(where, dataset_name)
+        if download_path.exists():
             return
         else:
-            os.makedirs(download_path)
+            Path.mkdir(download_path)
             self._download_proc(download_path)
     
     def _get_coords(self, image_height: int, image_width: int, record: dict) -> list[float]:
