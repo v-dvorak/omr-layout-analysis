@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-import os
 from tqdm import tqdm
 import argparse
 import parser_utils
 from dataset_utils import Dataset_OMR
+from pathlib import Path
+from natsort import natsorted
 
 # ARGUMENT SETUP
 # TODO: description
@@ -71,10 +72,11 @@ else:
 # DIRECTORIES INIT
 TRAIN_DATA_COUNT = int(args.count)
 # set home for better navigation, everything is done in this working directory
-HOME = os.path.abspath(os.path.join(args.output, ".."))
+HOME = Path.absolute(Path(args.output) / "..")
+print(HOME)
 # create file structure to save data to
-processed_dir = parser_utils.get_processed_number(HOME, args.output)
-img_dir, labels_dir = parser_utils.create_file_structure(processed_dir, train=args.train)
+processed_dir = parser_utils.get_processed_number(HOME, Path(args.output))
+img_dir, labels_dir = parser_utils.create_file_structure(Path(processed_dir), train=args.train)
 parser_utils.create_yaml_file_for_yolo(processed_dir, img_dir, LABELS, verbose=args.verbose)
 
 # MAIN LOOP
@@ -90,38 +92,21 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
         tag = current_dataset.nickname + "_"
 
     i = 0
-    verbose = False
-    img_processed = 0
-    labels_processed = 0
-    for subdir, dirs, files in tqdm(os.walk(os.path.join(HOME, current_dataset.name))):
-        for file in files:
-            if file in files_to_skip:
-                continue
+    all_images_paths: list[Path] = natsorted(((HOME / current_dataset.name).rglob("*.png")), key=str)
+    all_labels_paths: list[Path] = natsorted(((HOME / current_dataset.name).rglob("*.json")), key=str)
 
-            if verbose:
-                print(os.path.join(subdir, file))
-
-            if file.endswith(".json") and (labels_processed < TRAIN_DATA_COUNT or args.count is None):
-                current_dataset.process_label(
-                    os.path.join(subdir, file),
-                    os.path.join(labels_dir, tag + file.split(".")[0] + ".txt"),
+    for i in tqdm(range(TRAIN_DATA_COUNT)):
+        file_name = all_images_paths[i].parts[-1]
+        current_dataset.process_image(
+                    all_images_paths[i],
+                    img_dir / (tag + file_name)
+                )
+        current_dataset.process_label(
+                    all_labels_paths[i],
+                    labels_dir / (tag + file_name.split(".")[0] + ".txt"),
                     LABELS
                 )
-                labels_processed += 1
-                
-            elif file.endswith(".png") and (img_processed < TRAIN_DATA_COUNT or args.count is None):
-                current_dataset.process_image(
-                    os.path.join(subdir, file),
-                    os.path.join(img_dir, tag + file)
-                )
-                img_processed += 1
-            
-            if args.count is not None and not labels_processed < TRAIN_DATA_COUNT and not img_processed < TRAIN_DATA_COUNT:
-                break
-        else:
-            continue
-        break
 
-    print(f"Dataset {current_dataset.name} processed successfully, processed total of {img_processed} images.")
+    print(f"Dataset {current_dataset.name} processed successfully, processed total of {TRAIN_DATA_COUNT} images.")
 
-print("Job finished successfully, results are in:", os.path.abspath(processed_dir))
+print("Job finished successfully, results are in:", Path(processed_dir).absolute().resolve())
