@@ -6,6 +6,7 @@ import parser_utils
 from dataset_utils import Dataset_OMR
 from pathlib import Path
 from natsort import natsorted
+from datamixer import DataMixer
 
 # ARGUMENT SETUP
 # TODO: description
@@ -70,10 +71,10 @@ else:
         LABELS.append(POSSIBLE_LABELS[i])
 
 # DIRECTORIES INIT
-TRAIN_DATA_COUNT = int(args.count)
+# TRAIN_DATA_COUNT = int(args.count)
 # set home for better navigation, everything is done in this working directory
-HOME = Path.absolute(Path(args.output) / "..")
-print(HOME)
+HOME = Path.absolute(Path(args.output) / "..").resolve()
+
 # create file structure to save data to
 processed_dir = parser_utils.get_processed_number(HOME, Path(args.output))
 img_dir, labels_dir = parser_utils.create_file_structure(Path(processed_dir), train=args.train)
@@ -94,19 +95,24 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
     i = 0
     all_images_paths: list[Path] = natsorted(((HOME / current_dataset.name).rglob("*.png")), key=str)
     all_labels_paths: list[Path] = natsorted(((HOME / current_dataset.name).rglob("*.json")), key=str)
-
-    for i in tqdm(range(TRAIN_DATA_COUNT)):
-        file_name = all_images_paths[i].parts[-1]
+    
+    dat = DataMixer()
+    dat.process_file_dump(all_images_paths, all_labels_paths)
+    dat._shuffle_data()
+    for dato in tqdm(dat.get_all_data()):
+        if args.verbose:
+            print(dato.img_path.parts[-1], dato.label_path.parts[-1])
+        
         current_dataset.process_image(
-                    all_images_paths[i],
-                    img_dir / (tag + file_name)
+                    dato.img_path,
+                    img_dir / (tag + dato.name + ".png")
                 )
         current_dataset.process_label(
-                    all_labels_paths[i],
-                    labels_dir / (tag + file_name.split(".")[0] + ".txt"),
+                    dato.label_path,
+                    labels_dir / (tag + dato.name + ".txt"),
                     LABELS
                 )
 
-    print(f"Dataset {current_dataset.name} processed successfully, processed total of {TRAIN_DATA_COUNT} images.")
+    print(f"Dataset {current_dataset.name} processed successfully, processed total of {dat.count()} images.")
 
 print("Job finished successfully, results are in:", Path(processed_dir).absolute().resolve())
