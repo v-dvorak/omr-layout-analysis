@@ -94,14 +94,11 @@ def get_processed_number(working_dir: Path, folder_name: Path) -> Path:
     all_folders: list[Path] = get_all_subdirs(working_dir)
     # get ONLY folder names
     all_folder_names = [str(x.parts[-1]) for x in all_folders]
-    print(all_folder_names)
-    # easiest case
     # preprocess for transformation to ints
     all_folder_names = [x.replace(folder_name, "") for x in all_folder_names if x.startswith(folder_name)]
     if all_folder_names == []:
         latest = ""
     else:
-        print(all_folder_names)
         # clean up to ints
         clean: list[int] = []
         for x in all_folder_names:
@@ -112,7 +109,6 @@ def get_processed_number(working_dir: Path, folder_name: Path) -> Path:
                 pass
         
         clean.sort()
-        print(clean)
         if clean == []:
             latest = str(1)
         else:
