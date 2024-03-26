@@ -25,14 +25,15 @@ parser.add_argument("-c", "--count", default=None, help="How many files from eac
 parser.add_argument("--tag", action="store_true", help="Tags generated files with dataset nickname. Example: \"al2_filename\".")
 
 parser.add_argument("-l","--labels", nargs="+", help="Which labels to process. 0 : system_measures, 1 : stave_measures, 2 : staves. Default is all.")
-parser.add_argument("-s", "--dontsort", action="store_true", help="DONT sort labels by default numerical tags. Labels are sorted in ascending order by default.")
-
+# parser.add_argument("-s", "--dontsort", action="store_true", help="DONT sort labels by default numerical tags. Labels are sorted in ascending order by default.")
+parser.add_argument("--split", default=None, help="Train test split ratio.")
 
 # DATASETS INIT
 dataset_database = Dataset_OMR.__subclasses__() # Python magic
 for i in range(len(dataset_database)):
     dataset_database[i] = dataset_database[i]()
 
+# ADD OPTION TO ARGPARSE
 # add arguments for datasets
 for current_dataset in dataset_database:
     parser.add_argument("--" + current_dataset.nickname,
@@ -64,21 +65,33 @@ if args.labels is None:
     LABELS = POSSIBLE_LABELS
 else:
     args.labels = [int(x) for x in args.labels]
-    if not args.dontsort:
-        args.labels.sort()
     args.labels = parser_utils.make_list_unique(args.labels)
+    args.labels.sort()
     for i in args.labels:
         LABELS.append(POSSIBLE_LABELS[i])
 
+# DATA SPLIT INIT
+if args.split is not None:
+    args.split = float(args.split)
+
+if args.count is not None:
+    args.count = int(args.count)
+    if args.split is not None:
+        print(f"WARNING ⚠️ : Split is set to {args.split}, Count will have no effect on output.")
+
 # DIRECTORIES INIT
-# TRAIN_DATA_COUNT = int(args.count)
 # set home for better navigation, everything is done in this working directory
 HOME = Path.absolute(Path(args.output) / "..").resolve()
 
 # create file structure to save data to
 processed_dir = parser_utils.get_processed_number(HOME, Path(args.output))
-img_dir, labels_dir = parser_utils.create_file_structure(Path(processed_dir), train=args.train)
-parser_utils.create_yaml_file_for_yolo(processed_dir, img_dir, LABELS, verbose=args.verbose)
+img_dir, labels_dir = parser_utils.create_file_structure(Path(processed_dir), train=(args.split is not None))
+
+# YAML CONFIG
+if args.split is None:
+    parser_utils.create_yaml_file_for_yolo(processed_dir, img_dir, LABELS, verbose=args.verbose)
+else:
+    parser_utils.create_yaml_file_for_yolo(processed_dir, img_dir[0], LABELS, img_dir_val=img_dir[1], verbose=args.verbose)
 
 # MAIN LOOP
 for dat_pos, current_dataset in enumerate(datasets_to_work_with):
@@ -99,20 +112,46 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
     dat = DataMixer()
     dat.process_file_dump(all_images_paths, all_labels_paths)
     dat._shuffle_data()
-    for dato in tqdm(dat.get_all_data()):
-        if args.verbose:
-            print(dato.img_path.parts[-1], dato.label_path.parts[-1])
-        
-        current_dataset.process_image(
-                    dato.img_path,
-                    img_dir / (tag + dato.name + ".png")
-                )
-        current_dataset.process_label(
-                    dato.label_path,
-                    labels_dir / (tag + dato.name + ".txt"),
-                    LABELS
-                )
 
-    print(f"Dataset {current_dataset.name} processed successfully, processed total of {dat.count()} images.")
+    # EVERYTHING TOGEHTER
+    if args.split is None:
+        if args.count is None:
+            to_process = dat.get_all_data()
+        else:
+            to_process = dat.get_part_of_data(whole_part=args.count)
+        
+        for dato in tqdm(to_process):
+            if args.verbose:
+                print(dato.img_path.parts[-1], dato.label_path.parts[-1])
+            
+            current_dataset.process_image(
+                        dato.img_path,
+                        img_dir / (tag + dato.name + ".png")
+                    )
+            current_dataset.process_label(
+                        dato.label_path,
+                        labels_dir / (tag + dato.name + ".txt"),
+                        LABELS
+                    )
+    # SEPARATE TRAIN AND VAL FILES
+    else:
+        for i in [0, 1]: # train data, val data (aka test data)
+            if args.verbose:
+                print("train:" if i == 0 else "val:")
+            for dato in tqdm(dat.train_test_split(ratio=args.split)[i]):
+                if args.verbose:
+                    print(dato.img_path.parts[-1], dato.label_path.parts[-1])
+                
+                current_dataset.process_image(
+                            dato.img_path,
+                            img_dir[i] / (tag + dato.name + ".png")
+                        )
+                current_dataset.process_label(
+                            dato.label_path,
+                            labels_dir[i] / (tag + dato.name + ".txt"),
+                            LABELS
+                        )
+
+    print(f"Dataset {current_dataset.name} processed successfully.")
 
 print("Job finished successfully, results are in:", Path(processed_dir).absolute().resolve())

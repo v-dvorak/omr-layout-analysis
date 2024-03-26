@@ -116,7 +116,8 @@ def get_processed_number(working_dir: Path, folder_name: Path) -> Path:
 
     return working_dir / (folder_name + latest)
 
-def create_file_structure(processed_dir: Path, verbose: bool = False, train: bool = False) -> tuple[Path, Path]:
+def create_file_structure(processed_dir: Path, verbose: bool = False,
+                          train: bool = False) -> tuple[Path, Path] | tuple[tuple[Path, Path], tuple[Path, Path]]:
     """
     Creates folders for data.
 
@@ -130,11 +131,16 @@ def create_file_structure(processed_dir: Path, verbose: bool = False, train: boo
     img_dir = processed_dir / "images"
     labels_dir = processed_dir / "labels"
     if train:
-        img_dir = img_dir / "train"
-        labels_dir = labels_dir / "train"
-    
-    Path.mkdir(img_dir, parents=True)
-    Path.mkdir(labels_dir, parents=True)
+        img_dir_train = img_dir / "train"
+        labels_dir_train = labels_dir / "train"
+        img_dir_val = img_dir / "val"
+        labels_dir_val = labels_dir / "val"
+        for path in [img_dir_train, labels_dir_train, img_dir_val, labels_dir_val]:
+            Path.mkdir(path, parents=True)
+        return (img_dir_train, img_dir_val), (labels_dir_train, labels_dir_val)
+    else:
+        Path.mkdir(img_dir, parents=True)
+        Path.mkdir(labels_dir, parents=True)
 
     return img_dir, labels_dir
 
