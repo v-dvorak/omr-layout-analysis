@@ -24,6 +24,9 @@ class DataMixer:
     _data: list[DatoInfo] = []
     _cleaned: bool = False
 
+    def __init__(self) -> None:
+        self._data = []
+
     def add_image(self, img_path: Path):
         self._cleaned = False
         self._data.append(DatoInfo(img_path))
