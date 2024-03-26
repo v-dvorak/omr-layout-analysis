@@ -60,7 +60,12 @@ class DataMixer:
     def _shuffle_data(self):
         shuffle(self._data)
 
+    def _check_data_split(self, ratio: float):
+        if ratio < 0 or ratio > 1:
+            raise ValueError("Error: Split has to be a value between 0 and 1.")
+
     def train_test_split(self, ratio: float = 0.9) -> tuple[list[DatoInfo, DatoInfo]]:
+        self._check_data_split(ratio)
         self._clean_up()
         return np.split(self._data, [round(len(self._data) * ratio)])
     # TODO: write a checker for ratio 0 < rat < 1 with custom error message
@@ -70,4 +75,6 @@ class DataMixer:
             return self._data[:round(len(self._data) * ratio)]
         elif whole_part is not None:
             # TODO: think about letting eror of whole part slide or not
+            if whole_part > len(self._data):
+                print(f"WARNING ⚠️ : Requested number of files ({whole_part}) is greater than the count of files in database ({len(self._data)}).\n{len(self._data)} files will be returned.")
             return self._data[:min(len(self._data), whole_part)]
