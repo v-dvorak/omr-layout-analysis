@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
-from tqdm import tqdm
 import argparse
 from pathlib import Path
-from natsort import natsorted
 
 from .Parser import ParserUtils, FileUtils
 from .Parser.FileStructure import FileStructure
 from .Datasets.Import import Dataset_OMR
-from .DataMixer.DataMixer import DataMixer
+from .DatasetProcessor.DatasetProcessor import DatasetProcessor
 
 # ARGUMENT SETUP
 # TODO: description
@@ -33,7 +31,7 @@ dataset_database = Dataset_OMR.__subclasses__() # Python magic
 for i in range(len(dataset_database)):
     dataset_database[i] = dataset_database[i]()
 
-# ADD OPTION TO ARGPARSE
+# ADD OPTIONS TO ARGPARSE
 # add arguments for datasets
 for current_dataset in dataset_database:
     parser.add_argument("--" + current_dataset.nickname,
@@ -86,83 +84,19 @@ HOME = Path.absolute(Path(args.output) / "..").resolve()
 # create file structure to save data to
 processed_dir = FileUtils.get_processed_number(HOME, Path(args.output))
 file_struct: FileStructure = FileUtils.create_file_structure(Path(processed_dir), HOME, train=(args.split is not None))
+if args.verbose:
+    file_struct.print()
 
 # YAML CONFIG
 FileUtils.create_yaml_file_for_yolo(file_struct, LABELS)
 
-# MAIN LOOP
-for dat_pos, current_dataset in enumerate(datasets_to_work_with):
-    print()
-    print(f"Processing {current_dataset.name}, {dat_pos+1}/{len(datasets_to_work_with)}")
-    
+# DATASET DOWNLOAD
+for current_dataset in datasets_to_work_with:
     current_dataset.download_dataset(file_struct.home)
-    
-    files_to_skip = current_dataset.files_to_skip
-    tag = ""
-    if args.tag:
-        tag = current_dataset.nickname + "_"
 
-    i = 0
-    all_images_paths: list[Path] = natsorted(((file_struct.home / current_dataset.name).rglob("*.png")), key=str)
-    all_labels_paths: list[Path] = natsorted(((file_struct.home / current_dataset.name).rglob("*.json")), key=str)
-    
-    dat = DataMixer()
-    dat.process_file_dump(all_images_paths, all_labels_paths)
-    dat._shuffle_data()
+# DATASET PROCESSING
+dp = DatasetProcessor(datasets_to_work_with, LABELS, file_struct,
+                      split=args.split, count=args.count, deduplicate=args.deduplicate, tag=args.tag,
+                      verbose=args.verbose)
 
-    # EVERYTHING TOGEHTER
-    if args.split is None:
-        if args.count is None:
-            to_process = dat.get_all_data()
-        else:
-            to_process = dat.get_part_of_data(whole_part=args.count)
-        
-        for dato in tqdm(to_process):
-            if args.verbose:
-                print(dato.img_path.parts[-1], dato.label_path.parts[-1])
-            
-            current_dataset.process_image(
-                        dato.img_path,
-                        file_struct.image / (tag + dato.name + ".png")
-                    )
-            current_dataset.process_label(
-                        dato.label_path,
-                        file_struct.label / (tag + dato.name + ".txt"),
-                        LABELS,
-                        clean=args.deduplicate
-                    )
-    # SEPARATE TRAIN AND VAL FILES
-    else:
-        for dato in tqdm(dat.train_test_split(ratio=args.split)[0]):
-            if args.verbose:
-                print(dato.img_path.parts[-1], dato.label_path.parts[-1])
-            
-            current_dataset.process_image(
-                        dato.img_path,
-                        file_struct.image / (tag + dato.name + ".png")
-                    )
-            current_dataset.process_label(
-                        dato.label_path,
-                        file_struct.label / (tag + dato.name + ".txt"),
-                        LABELS,
-                        clean=args.deduplicate
-                    )
-            
-        for dato in tqdm(dat.train_test_split(ratio=args.split)[1]):
-            if args.verbose:
-                print(dato.img_path.parts[-1], dato.label_path.parts[-1])
-            
-            current_dataset.process_image(
-                        dato.img_path,
-                        file_struct.image_val / (tag + dato.name + ".png")
-                    )
-            current_dataset.process_label(
-                        dato.label_path,
-                        file_struct.label_val / (tag + dato.name + ".txt"),
-                        LABELS,
-                        clean=args.deduplicate
-                    )
-
-    print(f"Dataset {current_dataset.name} processed successfully.")
-
-print("Job finished successfully, results are in:", Path(processed_dir).absolute().resolve())
+dp.process_all_datasets()
