@@ -85,20 +85,17 @@ HOME = Path.absolute(Path(args.output) / "..").resolve()
 
 # create file structure to save data to
 processed_dir = FileUtils.get_processed_number(HOME, Path(args.output))
-file_structure: FileStructure = FileUtils.create_file_structure(Path(processed_dir), HOME, train=(args.split is not None))
+file_struct: FileStructure = FileUtils.create_file_structure(Path(processed_dir), HOME, train=(args.split is not None))
 
 # YAML CONFIG
-if args.split is None:
-    FileUtils.create_yaml_file_for_yolo(processed_dir, file_structure.image, LABELS, verbose=args.verbose)
-else:
-    FileUtils.create_yaml_file_for_yolo(processed_dir, file_structure.image, LABELS, img_dir_val=file_structure.image_val, verbose=args.verbose)
+FileUtils.create_yaml_file_for_yolo(file_struct, LABELS)
 
 # MAIN LOOP
 for dat_pos, current_dataset in enumerate(datasets_to_work_with):
     print()
     print(f"Processing {current_dataset.name}, {dat_pos+1}/{len(datasets_to_work_with)}")
     
-    current_dataset.download_dataset(HOME)
+    current_dataset.download_dataset(file_struct.home)
     
     files_to_skip = current_dataset.files_to_skip
     tag = ""
@@ -106,8 +103,8 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
         tag = current_dataset.nickname + "_"
 
     i = 0
-    all_images_paths: list[Path] = natsorted(((HOME / current_dataset.name).rglob("*.png")), key=str)
-    all_labels_paths: list[Path] = natsorted(((HOME / current_dataset.name).rglob("*.json")), key=str)
+    all_images_paths: list[Path] = natsorted(((file_struct.home / current_dataset.name).rglob("*.png")), key=str)
+    all_labels_paths: list[Path] = natsorted(((file_struct.home / current_dataset.name).rglob("*.json")), key=str)
     
     dat = DataMixer()
     dat.process_file_dump(all_images_paths, all_labels_paths)
@@ -126,11 +123,11 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
             
             current_dataset.process_image(
                         dato.img_path,
-                        file_structure.image / (tag + dato.name + ".png")
+                        file_struct.image / (tag + dato.name + ".png")
                     )
             current_dataset.process_label(
                         dato.label_path,
-                        file_structure.label / (tag + dato.name + ".txt"),
+                        file_struct.label / (tag + dato.name + ".txt"),
                         LABELS,
                         clean=args.deduplicate
                     )
@@ -142,11 +139,11 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
             
             current_dataset.process_image(
                         dato.img_path,
-                        file_structure.image / (tag + dato.name + ".png")
+                        file_struct.image / (tag + dato.name + ".png")
                     )
             current_dataset.process_label(
                         dato.label_path,
-                        file_structure.label / (tag + dato.name + ".txt"),
+                        file_struct.label / (tag + dato.name + ".txt"),
                         LABELS,
                         clean=args.deduplicate
                     )
@@ -157,11 +154,11 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
             
             current_dataset.process_image(
                         dato.img_path,
-                        file_structure.image_val / (tag + dato.name + ".png")
+                        file_struct.image_val / (tag + dato.name + ".png")
                     )
             current_dataset.process_label(
                         dato.label_path,
-                        file_structure.label_val / (tag + dato.name + ".txt"),
+                        file_struct.label_val / (tag + dato.name + ".txt"),
                         LABELS,
                         clean=args.deduplicate
                     )

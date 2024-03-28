@@ -48,7 +48,6 @@ def read_json(filename: Path) -> dict:
         # Load the file content into a JSON object
         return json.load(file)
 
-
 def write_rows_to_file(data: list[list[int]], filename: Path, dato_sep="\t", record_sep="\n"):
     """
     Write list of lists (list of annotation) to a specified file.
@@ -113,7 +112,7 @@ def get_processed_number(working_dir: Path, folder_name: Path) -> Path:
     return working_dir / (folder_name + latest)
 
 def create_file_structure(processed_dir: Path, home_dir: Path, verbose: bool = False,
-                          train: bool = False) -> tuple[Path, Path] | tuple[tuple[Path, Path], tuple[Path, Path]]:
+                          train: bool = False) -> FileStructure:
     """
     Creates folders for data.
 
@@ -145,7 +144,47 @@ def create_file_structure(processed_dir: Path, home_dir: Path, verbose: bool = F
                          img_dir,
                          label_dir)
 
-def create_yaml_file_for_yolo(final_dataset_dir: Path, img_dir_train: Path, labels: list[str], img_dir_val: Path = None, file_name: str = "config", verbose: bool = False):
+def create_yaml_file_for_yolo(file_struct: FileStructure, labels: list[str], file_name: str = "config", verbose: bool = False):
+    """
+    Creates .yaml file in YOLO format neccessary for model training.
+
+    Args:
+    - file_struct: list of directories import for the project
+    - labels: list of label names, is used to give labels numerical values for model training, ex:
+        - `0: label0`
+        - `1: label2`
+        - ...
+    - optional:
+        - file_name: final file name is `file_name.yaml`, default is "config"
+        - verbose
+    """
+    if not file_struct.is_train_test():
+        img_dir_val = file_struct.image
+    final_dataset_dir = str(file_struct.output.absolute().resolve())
+    img_dir_train = str(file_struct.image.absolute().resolve())
+    img_dir_val = str(img_dir_val.absolute().resolve())
+    names = {}
+    for i, label in enumerate(labels):
+        names[i] = label
+
+    data = {
+        "path": final_dataset_dir,
+        "train": img_dir_train,
+        "val": img_dir_val,
+        "names": names,
+    }
+
+    file_location = Path(final_dataset_dir + "/" + f"{file_name}.yaml")
+    with open(file_location, "w") as file:
+        yaml.dump(data, file, sort_keys=False)
+    if verbose:
+        print(f"{file_name}.yaml at {str(file_location.absolute())} created successfully.")
+
+###############
+# LEGACY CODE #
+###############
+
+def _legacy_create_yaml_file_for_yolo(final_dataset_dir: Path, img_dir_train: Path, labels: list[str], img_dir_val: Path = None, file_name: str = "config", verbose: bool = False):
     """
     Creates .yaml file in YOLO format neccessary for model training.
 
@@ -156,6 +195,10 @@ def create_yaml_file_for_yolo(final_dataset_dir: Path, img_dir_train: Path, labe
         - `0: label0`
         - `1: label2`
         - ...
+    - optional:
+        - img_dir_val: if data are separated into train and test data, this is the list of the test data
+        - file_name: final file name is `file_name.yaml`, default is "config"
+        - verbose
     """
     if img_dir_val is None:
         img_dir_val = img_dir_train
