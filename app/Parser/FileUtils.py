@@ -135,7 +135,7 @@ def create_file_structure(processed_dir: Path, home_dir: Path, verbose: bool = F
         # return (img_dir_train, img_dir_val), (labels_dir_train, labels_dir_val)
         return FileStructure(home_dir, processed_dir,
                              img_dir_train, label_dir_train,
-                             label_dir_train, label_dir_val)
+                             img_dir_val, label_dir_val)
     else:
         Path.mkdir(img_dir, parents=True)
         Path.mkdir(label_dir, parents=True)
@@ -158,8 +158,11 @@ def create_yaml_file_for_yolo(file_struct: FileStructure, labels: list[str], fil
         - file_name: final file name is `file_name.yaml`, default is "config"
         - verbose
     """
-    if not file_struct.is_train_test():
+    if file_struct.is_train_test():
+        img_dir_val = file_struct.image_val
+    else:
         img_dir_val = file_struct.image
+    
     final_dataset_dir = str(file_struct.output.absolute().resolve())
     img_dir_train = str(file_struct.image.absolute().resolve())
     img_dir_val = str(img_dir_val.absolute().resolve())

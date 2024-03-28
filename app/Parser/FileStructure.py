@@ -21,3 +21,6 @@ class FileStructure:
 
     def is_train_test(self):
         return (self.image_val is not None and self.label_val is not None)
+    
+    def print(self):
+        print('\n'.join("%s: %s" % item for item in vars(self).items()))
