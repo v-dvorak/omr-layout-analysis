@@ -1,27 +1,22 @@
+from pathlib import Path
 import numpy as np
 import json
 import yaml
-from pathlib import Path
 
-def get_unique_list(inp_list: list[any]) -> list[any]:
+def get_file_name_from_path(path: Path) -> str:
     """
-    Takes a list and returns list of all the unique values
-    that were inside given list in the original order.
-    Ex: `[8,5,1,3,8,8,4,5,2]` becomes `[8,5,1,3,4,2]`.
+    Takes the last part of the path considered to be a file name
+    and trims of its file extension.
+
+    `folder/subfolder/example.txt -> example`
 
     Args:
-    - inp_list: input list
-    
+    - path to file
+
     Returns:
-    - a list in which all values are unique
+    - name of file as a string
     """
-    unique_list = []
-    # got through all elements
-    for x in inp_list:
-        # check if item is already in list
-        if x not in unique_list:
-            unique_list.append(x)
-    return unique_list
+    return path.parts[-1].split(".")[0]
 
 def get_coords_relative_to_image_size(image_height: int, image_width: int, left: int, top: int, height: int, width: int) -> list[float]:
     """

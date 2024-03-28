@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
-from .Parser import parser_utils
-from .Datasets.dataset_import import Dataset_OMR
-from .DataMixer.datamixer import DataMixer
 from tqdm import tqdm
 import argparse
 from pathlib import Path
 from natsort import natsorted
+
+from .Parser import ParserUtils
+from .Datasets.dataset_import import Dataset_OMR
+from .DataMixer.DataMixer import DataMixer
 
 # ARGUMENT SETUP
 # TODO: description
@@ -63,7 +64,7 @@ if args.labels is None:
     LABELS = POSSIBLE_LABELS
 else:
     args.labels = [int(x) for x in args.labels]
-    args.labels = parser_utils.get_unique_list(args.labels)
+    args.labels = ParserUtils.get_unique_list(args.labels)
     args.labels.sort()
     for i in args.labels:
         LABELS.append(POSSIBLE_LABELS[i])
@@ -82,14 +83,14 @@ if args.count is not None:
 HOME = Path.absolute(Path(args.output) / "..").resolve()
 
 # create file structure to save data to
-processed_dir = parser_utils.get_processed_number(HOME, Path(args.output))
-img_dir, labels_dir = parser_utils.create_file_structure(Path(processed_dir), train=(args.split is not None))
+processed_dir = ParserUtils.get_processed_number(HOME, Path(args.output))
+img_dir, labels_dir = ParserUtils.create_file_structure(Path(processed_dir), train=(args.split is not None))
 
 # YAML CONFIG
 if args.split is None:
-    parser_utils.create_yaml_file_for_yolo(processed_dir, img_dir, LABELS, verbose=args.verbose)
+    ParserUtils.create_yaml_file_for_yolo(processed_dir, img_dir, LABELS, verbose=args.verbose)
 else:
-    parser_utils.create_yaml_file_for_yolo(processed_dir, img_dir[0], LABELS, img_dir_val=img_dir[1], verbose=args.verbose)
+    ParserUtils.create_yaml_file_for_yolo(processed_dir, img_dir[0], LABELS, img_dir_val=img_dir[1], verbose=args.verbose)
 
 # MAIN LOOP
 for dat_pos, current_dataset in enumerate(datasets_to_work_with):
