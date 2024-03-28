@@ -2,6 +2,7 @@ from pathlib import Path
 import numpy as np
 import json
 import yaml
+from .FileStructure import FileStructure
 
 def get_file_name_from_path(path: Path) -> str:
     """
@@ -111,7 +112,7 @@ def get_processed_number(working_dir: Path, folder_name: Path) -> Path:
 
     return working_dir / (folder_name + latest)
 
-def create_file_structure(processed_dir: Path, verbose: bool = False,
+def create_file_structure(processed_dir: Path, home_dir: Path, verbose: bool = False,
                           train: bool = False) -> tuple[Path, Path] | tuple[tuple[Path, Path], tuple[Path, Path]]:
     """
     Creates folders for data.
@@ -124,20 +125,25 @@ def create_file_structure(processed_dir: Path, verbose: bool = False,
     - locations to store images and labels to
     """
     img_dir = processed_dir / "images"
-    labels_dir = processed_dir / "labels"
+    label_dir = processed_dir / "labels"
     if train:
         img_dir_train = img_dir / "train"
-        labels_dir_train = labels_dir / "train"
+        label_dir_train = label_dir / "train"
         img_dir_val = img_dir / "val"
-        labels_dir_val = labels_dir / "val"
-        for path in [img_dir_train, labels_dir_train, img_dir_val, labels_dir_val]:
+        label_dir_val = label_dir / "val"
+        for path in [img_dir_train, label_dir_train, img_dir_val, label_dir_val]:
             Path.mkdir(path, parents=True)
-        return (img_dir_train, img_dir_val), (labels_dir_train, labels_dir_val)
+        # return (img_dir_train, img_dir_val), (labels_dir_train, labels_dir_val)
+        return FileStructure(home_dir, processed_dir,
+                             img_dir_train, label_dir_train,
+                             label_dir_train, label_dir_val)
     else:
         Path.mkdir(img_dir, parents=True)
-        Path.mkdir(labels_dir, parents=True)
+        Path.mkdir(label_dir, parents=True)
 
-    return img_dir, labels_dir
+    return FileStructure(home_dir, processed_dir,
+                         img_dir,
+                         label_dir)
 
 def create_yaml_file_for_yolo(final_dataset_dir: Path, img_dir_train: Path, labels: list[str], img_dir_val: Path = None, file_name: str = "config", verbose: bool = False):
     """

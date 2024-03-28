@@ -5,7 +5,8 @@ import argparse
 from pathlib import Path
 from natsort import natsorted
 
-from .Parser import ParserUtils
+from .Parser import ParserUtils, FileUtils
+from .Parser.FileStructure import FileStructure
 from .Datasets.Import import Dataset_OMR
 from .DataMixer.DataMixer import DataMixer
 
@@ -83,14 +84,14 @@ if args.count is not None:
 HOME = Path.absolute(Path(args.output) / "..").resolve()
 
 # create file structure to save data to
-processed_dir = ParserUtils.get_processed_number(HOME, Path(args.output))
-img_dir, labels_dir = ParserUtils.create_file_structure(Path(processed_dir), train=(args.split is not None))
+processed_dir = FileUtils.get_processed_number(HOME, Path(args.output))
+file_structure: FileStructure = FileUtils.create_file_structure(Path(processed_dir), HOME, train=(args.split is not None))
 
 # YAML CONFIG
 if args.split is None:
-    ParserUtils.create_yaml_file_for_yolo(processed_dir, img_dir, LABELS, verbose=args.verbose)
+    FileUtils.create_yaml_file_for_yolo(processed_dir, file_structure.image, LABELS, verbose=args.verbose)
 else:
-    ParserUtils.create_yaml_file_for_yolo(processed_dir, img_dir[0], LABELS, img_dir_val=img_dir[1], verbose=args.verbose)
+    FileUtils.create_yaml_file_for_yolo(processed_dir, file_structure.image, LABELS, img_dir_val=file_structure.image_val, verbose=args.verbose)
 
 # MAIN LOOP
 for dat_pos, current_dataset in enumerate(datasets_to_work_with):
@@ -125,33 +126,45 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
             
             current_dataset.process_image(
                         dato.img_path,
-                        img_dir / (tag + dato.name + ".png")
+                        file_structure.image / (tag + dato.name + ".png")
                     )
             current_dataset.process_label(
                         dato.label_path,
-                        labels_dir / (tag + dato.name + ".txt"),
+                        file_structure.label / (tag + dato.name + ".txt"),
                         LABELS,
                         clean=args.clean
                     )
     # SEPARATE TRAIN AND VAL FILES
     else:
-        for i in [0, 1]: # train data, val data (aka test data)
+        for dato in tqdm(dat.train_test_split(ratio=args.split)[0]):
             if args.verbose:
-                print("train:" if i == 0 else "val:")
-            for dato in tqdm(dat.train_test_split(ratio=args.split)[i]):
-                if args.verbose:
-                    print(dato.img_path.parts[-1], dato.label_path.parts[-1])
-                
-                current_dataset.process_image(
-                            dato.img_path,
-                            img_dir[i] / (tag + dato.name + ".png")
-                        )
-                current_dataset.process_label(
-                            dato.label_path,
-                            labels_dir[i] / (tag + dato.name + ".txt"),
-                            LABELS,
-                            clean=args.clean
-                        )
+                print(dato.img_path.parts[-1], dato.label_path.parts[-1])
+            
+            current_dataset.process_image(
+                        dato.img_path,
+                        file_structure.image / (tag + dato.name + ".png")
+                    )
+            current_dataset.process_label(
+                        dato.label_path,
+                        file_structure.label / (tag + dato.name + ".txt"),
+                        LABELS,
+                        clean=args.clean
+                    )
+            
+        for dato in tqdm(dat.train_test_split(ratio=args.split)[1]):
+            if args.verbose:
+                print(dato.img_path.parts[-1], dato.label_path.parts[-1])
+            
+            current_dataset.process_image(
+                        dato.img_path,
+                        file_structure.image_val / (tag + dato.name + ".png")
+                    )
+            current_dataset.process_label(
+                        dato.label_path,
+                        file_structure.label_val / (tag + dato.name + ".txt"),
+                        LABELS,
+                        clean=args.clean
+                    )
 
     print(f"Dataset {current_dataset.name} processed successfully.")
 

@@ -2,6 +2,7 @@ from pathlib import Path
 import shutil
 
 from ..Parser import ParserUtils
+from ..Parser import FileUtils
 
 class Dataset_OMR:
     name = ""
@@ -69,8 +70,8 @@ class Dataset_OMR:
         shutil.copy(img_path, output_path)
     
     def process_label(self, label_path: Path, output_path: Path, labels: list[str], clean: bool = False):
-        data = ParserUtils.read_json(label_path)
+        data = FileUtils.read_json(label_path)
         annot = self.parse_json_to_yolo(data, labels)
         if clean:
             annot = ParserUtils.get_unique_list(annot)
-        ParserUtils.write_rows_to_file(annot, output_path)
+        FileUtils.write_rows_to_file(annot, output_path)

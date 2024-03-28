@@ -1,5 +1,3 @@
-from .FileUtils import *  # noqa: F403
-
 def get_unique_list(inp_list: list[any]) -> list[any]:
     """
     Takes a list and returns list of all the unique values
@@ -19,4 +17,3 @@ def get_unique_list(inp_list: list[any]) -> list[any]:
         if x not in unique_list:
             unique_list.append(x)
     return unique_list
-
