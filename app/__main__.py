@@ -26,7 +26,7 @@ parser.add_argument("-c", "--count", default=None, help="How many files from eac
 parser.add_argument("--tag", action="store_true", help="Tags generated files with dataset nickname. Example: \"al2_filename\".")
 parser.add_argument("-l","--labels", nargs="+", help="Which labels to process. 0 : system_measures, 1 : stave_measures, 2 : staves. Default is all.")
 parser.add_argument("--split", default=None, help="Train test split ratio.")
-parser.add_argument("--clean", action="store_true", help="Checks for possible duplicates in labels and remove them. May affect performance.")
+parser.add_argument("--deduplicate", action="store_true", help="Checks for possible duplicates in labels and removes them. May affect performance.")
 
 # DATASETS INIT
 dataset_database = Dataset_OMR.__subclasses__() # Python magic
@@ -132,7 +132,7 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
                         dato.label_path,
                         file_structure.label / (tag + dato.name + ".txt"),
                         LABELS,
-                        clean=args.clean
+                        clean=args.deduplicate
                     )
     # SEPARATE TRAIN AND VAL FILES
     else:
@@ -148,7 +148,7 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
                         dato.label_path,
                         file_structure.label / (tag + dato.name + ".txt"),
                         LABELS,
-                        clean=args.clean
+                        clean=args.deduplicate
                     )
             
         for dato in tqdm(dat.train_test_split(ratio=args.split)[1]):
@@ -163,7 +163,7 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
                         dato.label_path,
                         file_structure.label_val / (tag + dato.name + ".txt"),
                         LABELS,
-                        clean=args.clean
+                        clean=args.deduplicate
                     )
 
     print(f"Dataset {current_dataset.name} processed successfully.")
