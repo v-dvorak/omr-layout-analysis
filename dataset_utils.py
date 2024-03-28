@@ -2,6 +2,7 @@ from omrdatasettools import OmrDataset, Downloader
 import parser_utils
 import shutil
 from pathlib import Path
+from parser_utils import get_unique_list
 
 class Dataset_OMR:
     name = ""
@@ -68,9 +69,11 @@ class Dataset_OMR:
     def process_image(self, img_path: Path, output_path: Path):
         shutil.copy(img_path, output_path)
     
-    def process_label(self, label_path: Path, output_path: Path, labels: list[str]):
+    def process_label(self, label_path: Path, output_path: Path, labels: list[str], clean: bool = False):
         data = parser_utils.read_json(label_path)
         annot = self.parse_json_to_yolo(data, labels)
+        if clean:
+            annot = get_unique_list(annot)
         parser_utils.write_rows_to_file(annot, output_path)
 
 class AudioLabs_v2(Dataset_OMR):

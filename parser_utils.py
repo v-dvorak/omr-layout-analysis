@@ -3,7 +3,7 @@ import json
 import yaml
 from pathlib import Path
 
-def make_list_unique(inp_list: list[any]) -> list[any]:
+def get_unique_list(inp_list: list[any]) -> list[any]:
     """
     Takes a list and returns list of all the unique values
     that were inside given list in the original order.

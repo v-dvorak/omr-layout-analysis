@@ -20,13 +20,12 @@ parser = argparse.ArgumentParser(
 parser.add_argument("output", help="Path to store the final dataset at.")
 
 parser.add_argument("-v", "--verbose", action="store_true", help="Make script verbose")
-parser.add_argument("-t", "--train", action="store_true", help="Create \"train\" subfolders")
 parser.add_argument("-c", "--count", default=None, help="How many files from each dataset will be processed. Default is all.")
 parser.add_argument("--tag", action="store_true", help="Tags generated files with dataset nickname. Example: \"al2_filename\".")
 
 parser.add_argument("-l","--labels", nargs="+", help="Which labels to process. 0 : system_measures, 1 : stave_measures, 2 : staves. Default is all.")
-# parser.add_argument("-s", "--dontsort", action="store_true", help="DONT sort labels by default numerical tags. Labels are sorted in ascending order by default.")
 parser.add_argument("--split", default=None, help="Train test split ratio.")
+parser.add_argument("--clean", action="store_true", help="Checks for possible duplicates in labels and remove them. May affect performance.")
 
 # DATASETS INIT
 dataset_database = Dataset_OMR.__subclasses__() # Python magic
@@ -65,7 +64,7 @@ if args.labels is None:
     LABELS = POSSIBLE_LABELS
 else:
     args.labels = [int(x) for x in args.labels]
-    args.labels = parser_utils.make_list_unique(args.labels)
+    args.labels = parser_utils.get_unique_list(args.labels)
     args.labels.sort()
     for i in args.labels:
         LABELS.append(POSSIBLE_LABELS[i])
@@ -131,7 +130,8 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
             current_dataset.process_label(
                         dato.label_path,
                         labels_dir / (tag + dato.name + ".txt"),
-                        LABELS
+                        LABELS,
+                        clean=args.clean
                     )
     # SEPARATE TRAIN AND VAL FILES
     else:
@@ -149,7 +149,8 @@ for dat_pos, current_dataset in enumerate(datasets_to_work_with):
                 current_dataset.process_label(
                             dato.label_path,
                             labels_dir[i] / (tag + dato.name + ".txt"),
-                            LABELS
+                            LABELS,
+                            clean=args.clean
                         )
 
     print(f"Dataset {current_dataset.name} processed successfully.")
