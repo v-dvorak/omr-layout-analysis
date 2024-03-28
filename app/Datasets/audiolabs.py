@@ -1,7 +1,7 @@
 from pathlib import Path
 from omrdatasettools import Downloader, OmrDataset
 
-from .dataset_base import Dataset_OMR
+from .DatasetOMR import Dataset_OMR
 from ..Parser import ParserUtils
 
 class AudioLabs_v2(Dataset_OMR):

@@ -6,7 +6,7 @@ from pathlib import Path
 from natsort import natsorted
 
 from .Parser import ParserUtils
-from .Datasets.dataset_import import Dataset_OMR
+from .Datasets.Import import Dataset_OMR
 from .DataMixer.DataMixer import DataMixer
 
 # ARGUMENT SETUP
