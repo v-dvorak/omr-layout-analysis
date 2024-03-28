@@ -154,9 +154,9 @@ class DataMixer:
         or `min(total_length, whole_part)` if whole part is chosen.
         Returns the first N elements of the internal database.
         """
-        self._check_ratio_in_bounds(ratio)
         self._clean_up()
         if ratio is not None:
+            self._check_ratio_in_bounds(ratio)
             return self._data[:round(len(self._data) * ratio)]
         elif whole_part is not None:
             self._check_whole_part_in_bounds(whole_part)
