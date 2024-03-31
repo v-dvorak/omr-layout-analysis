@@ -10,12 +10,11 @@ from ..DataMixer.DataMixer import DataMixer
 from ..Parser.FileStructure import FileStructure
 from ..DataMixer.DatoInfo import DatoInfo
 
-
-"""
-Dataset donwload: use other class? (surely, out of scope for this class)
-"""
-
 class DatasetProcessor:
+    """
+    Takes datasets to be processed, file structure and labels
+    and optional arguments that determine the final form of the dataset.
+    """
     # data control
     _DATASETS: list[Dataset_OMR]
     _LABELS: list[str]
@@ -50,11 +49,19 @@ class DatasetProcessor:
         self._run_checks()
 
     def print_datataset_names(self):
+        """
+        Prints out names of given datasets.
+        """
         print("Following datasets will be processed:")
         for dat in self._DATASETS:
             print(dat.name)
 
     def _run_checks(self):
+        """
+        Internal method!
+
+        Runs necessary checks after initilization.
+        """
         if self._split is not None:
             self._check_ratio_in_bounds()
         self._check_split_ratio_def()
@@ -71,13 +78,31 @@ class DatasetProcessor:
         return True
     
     def _check_split_ratio_def(self):
+            """
+            Internal method!
+
+            Checks if dataset is big enough to fulfill users demands.
+            Raises a warning if not.
+            """
             if self._count is not None and self._split is not None:
                 print(f"WARNING ⚠️ : Split is set to {float(self._split)}, Count will have no effect on output.")
 
     def create_yaml_file(self):
+        """
+        Creates .yaml file in YOLO format neccessary for model training.
+        """
         FileUtils.create_yaml_file_for_yolo(self._file_struct, self._LABELS)
         
     def load_dataset(self, current_dataset: Dataset_OMR):
+        """
+        Loads given dataset to a list of `DatoInfo`s.
+
+        Args:
+        - dataset to be loaded
+
+        Returns:
+        - `DataMixer` loaded with records from given dataset
+        """
         dat = DataMixer()
         all_images_paths: list[Path] = natsorted(((self._file_struct.home / current_dataset.name).rglob("*.png")), key=str)
         all_labels_paths: list[Path] = natsorted(((self._file_struct.home / current_dataset.name).rglob("*.json")), key=str)
@@ -85,12 +110,21 @@ class DatasetProcessor:
         return dat
     
     def process_all_datasets(self):
+        """
+        Iterates through all datasets given at initialization and processes them.
+        """
         for dataset in self._DATASETS:
             self.process_dataset(dataset)
         
         print("Job finished successfully, results are in:", Path(self._file_struct.output).absolute().resolve())
 
     def process_dataset(self, current_dataset: Dataset_OMR):
+        """
+        Processes single given dataset.
+
+        Args:
+        - dataset to be processed
+        """
         data_mixer = self.load_dataset(current_dataset)
 
         tag = ""
@@ -98,28 +132,32 @@ class DatasetProcessor:
             tag = current_dataset.nickname + "_"
         
         if self._split is not None:
-            self._split_process_dataset(current_dataset, data_mixer, tag)
+            self.split_process_dataset(current_dataset, data_mixer, tag)
         else:
-            self._count_process_dataset(current_dataset, data_mixer, tag)
+            self.count_process_dataset(current_dataset, data_mixer, tag)
         
         print(f"Dataset {current_dataset.name} processed successfully.")
 
-    def _count_process_dataset(self, current_dataset: Dataset_OMR, data_mixer: DataMixer, tag: str = ""):
-        if self._count is None:
-            to_process = data_mixer.get_all_data()
-        else:
-            to_process = data_mixer.get_part_of_data(whole_part=self._count)
-        
-        self._process_part_of_dataset(current_dataset, to_process,
-                                      self._file_struct.image, self._file_struct.label,
-                                      tag)
-            
     def _process_part_of_dataset(self,
                                  current_dataset: Dataset_OMR,
                                  data: list[DatoInfo],
                                  image_path: Path,
                                  label_path: Path,
                                  tag: str = ""):
+        """
+        Base method for all other dataset file processing.
+        Processes all files given in a `DataMixer` format.
+
+        All used directories have to be setup BEFORE this method is called!
+
+        Args:
+        - dataset to be processed
+        - `DataMixer` loaded with records from given dataset
+        - path to save images to
+        - path to save labels to
+        - optional:
+            - tags generated files at the beginning of their name with dataset nickname, e.g.: `\"al2_filename\"
+        """
         for dato in tqdm(data):
             if self._verbose:
                 print(dato.img_path.parts[-1], dato.label_path.parts[-1])
@@ -135,7 +173,41 @@ class DatasetProcessor:
                         clean=self._deduplicate
                     )
 
-    def _split_process_dataset(self, current_dataset: Dataset_OMR, data_mixer: DataMixer, tag: str = ""):
+    def count_process_dataset(self, current_dataset: Dataset_OMR, data_mixer: DataMixer, tag: str = ""):
+        """
+        Processes single given dataset, takes only first `count` of records.
+        `count` is given at initialization.
+
+        All used directories have to be setup BEFORE this method is called!
+
+        Args:
+        - dataset to be processed
+        - `DataMixer` loaded with records from given dataset
+        - optional:
+            - tags generated files at the beginning of their name with dataset nickname, e.g.: `\"al2_filename\"`
+        """
+        if self._count is None:
+            to_process = data_mixer.get_all_data()
+        else:
+            to_process = data_mixer.get_part_of_data(whole_part=self._count)
+        
+        self._process_part_of_dataset(current_dataset, to_process,
+                                      self._file_struct.image, self._file_struct.label,
+                                      tag)            
+
+    def split_process_dataset(self, current_dataset: Dataset_OMR, data_mixer: DataMixer, tag: str = ""):
+        """
+        Processes single given dataset, splits records into train and test file by the `split` ratio.
+        `split` is given at initialization.
+
+        All used directories have to be setup BEFORE this method is called!
+
+        Args:
+        - dataset to be processed
+        - `DataMixer` loaded with records from given dataset
+        - optional:
+            - tags generated files at the beginning of their name with dataset nickname, e.g.: `\"al2_filename\"`
+        """
         data = data_mixer.train_test_split(ratio=self._split)
         # TRAIN
         self._process_part_of_dataset(current_dataset, data[0],

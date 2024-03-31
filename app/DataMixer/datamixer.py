@@ -6,6 +6,10 @@ from .DatoInfo import DatoInfo
 from ..Parser.FileUtils import get_file_name_from_path
 
 class DataMixer:
+    """
+    Takes data from dataset files and converts them
+    to a list of `DatoInfo` records that can be used later to process the dataset.
+    """
     _data: list[DatoInfo] = []
     _cleaned: bool = False
 

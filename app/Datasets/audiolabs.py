@@ -5,6 +5,9 @@ from .DatasetOMR import Dataset_OMR
 from ..Parser import FileUtils
 
 class AudioLabs_v2(Dataset_OMR):
+    """
+    Dataset class of the AudioLabs v2 dataset.
+    """
     name = "AudioLabs_v2"
     nickname = "al2"
     files_to_skip = ["all_annotations.json"]

@@ -5,6 +5,9 @@ from .DatasetOMR import Dataset_OMR
 from ..Parser import FileUtils
 
 class MuscimaPP(Dataset_OMR):
+    """
+    Dataset class of the Musicma Plus Plus dataset.
+    """
     name = "MusicmaPlusPlus"
     nickname = "mpp"
     files_to_skip = ["all_measure_annotations.json",

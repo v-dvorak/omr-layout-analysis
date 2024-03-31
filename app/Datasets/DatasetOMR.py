@@ -5,6 +5,9 @@ from ..Parser import ParserUtils
 from ..Parser import FileUtils
 
 class Dataset_OMR:
+    """
+    \"Abstract\" base class from which all other dataset classes are derived.
+    """
     name = ""
     nickname = ""
 
