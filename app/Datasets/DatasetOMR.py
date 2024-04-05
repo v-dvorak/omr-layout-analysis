@@ -3,7 +3,8 @@ import shutil
 
 from ..Parser import ParserUtils
 from ..Parser import FileUtils
-from ..LabelKeeper.LabelKeeper import Label, Sheet
+from ..LabelKeeper.LabelKeeper import Label
+from ..LabelKeeper.Sheet import Sheet
 
 class Dataset_OMR:
     """
@@ -101,15 +102,16 @@ class Dataset_OMR:
         shutil.copy(img_path, output_path)
     
     def process_label(self, label_path: Path, output_path: Path, labels: list[str], clean: bool = False):
-        data = FileUtils.read_json(label_path)
-        annot, size = self.parse_json_to_list(data, labels)
-        # print(len(annot))
-        annot.sort()
+        data = FileUtils.read_json(label_path) # load data
+        annot, size = self.parse_json_to_list(data, labels) # get list of annotations and image size
+        
+        # initialize sheet, get labels
         sheet = Sheet(annot)
-        # print(*sheet.get_all_yolo_labels(size[0], size[1]), sep="\n")
         annot = sheet.get_all_yolo_labels(size[0], size[1])
-        # print(len(annot))
+
+        # label post-processing
         if clean:
             annot = ParserUtils.get_unique_list(annot)
-        # annot = 
+
+        # write
         FileUtils.write_rows_to_file(annot, output_path)
