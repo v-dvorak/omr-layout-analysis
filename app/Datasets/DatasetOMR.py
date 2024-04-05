@@ -74,7 +74,7 @@ class Dataset_OMR:
         """
         image_width, image_height = data["width"], data["height"]
         annot = []
-        for i, label in enumerate(labels):
+        for i, label in enumerate(labels[:3]):
             for record in data[label]:
                 annot.append(Label(i, *self._get_coco_format(record)))
         return annot, (image_width, image_height)
@@ -93,7 +93,7 @@ class Dataset_OMR:
         """
         image_width, image_height = data["width"], data["height"]
         annot = []
-        for i, label in enumerate(labels):
+        for i, label in enumerate(labels[:3]):
             for record in data[label]:
                 annot.append([i, *self._get_coords(image_height, image_width, record)])
         return annot
@@ -101,13 +101,14 @@ class Dataset_OMR:
     def process_image(self, img_path: Path, output_path: Path):
         shutil.copy(img_path, output_path)
     
-    def process_label(self, label_path: Path, output_path: Path, labels: list[str], clean: bool = False):
+    def process_label(self, label_path: Path, output_path: Path, labels: list[str], piano: list[int] = None, clean: bool = False):
         data = FileUtils.read_json(label_path) # load data
-        annot, size = self.parse_json_to_list(data, labels) # get list of annotations and image size
+        annot, image_size = self.parse_json_to_list(data, labels) # get list of annotations and image size
         
         # initialize sheet, get labels
-        sheet = Sheet(annot)
-        annot = sheet.get_all_yolo_labels(size[0], size[1])
+        sheet = Sheet(annot, labels, piano=piano)
+
+        annot = sheet.get_all_yolo_labels(image_size)
 
         # label post-processing
         if clean:

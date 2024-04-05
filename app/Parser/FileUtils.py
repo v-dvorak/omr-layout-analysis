@@ -2,6 +2,42 @@ from pathlib import Path
 import json
 import yaml
 from .FileStructure import FileStructure
+from typing import Dict
+
+def load_description_file_to_dictionary(file_path) -> Dict[str, list[list[int]]]:
+    """
+    Loads given file into dictionary. 
+    File has to be in a specific format:
+    ```
+    key
+    value
+    key
+    value
+    ...
+    ```
+    Where key is a name of file (not path to the file, only its name without extension)
+    and value is a sequence of numbers describing staves and systems in the picture.
+    """
+
+    """
+    Annotation formatting:
+    - numbers correspong to number of staves in a grand staff
+    - numbers connected by `-` are part of the same system
+    Example:
+    - `1-2 2-2 2` - there is a total of three systems in this file
+        - first: one staff and a grand staff made up of two staves
+        - second: two grand staffs made up of two staves
+        - third: one grand staff made up of two staves    
+    """
+    data_dict = {}
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+        # iterate over lines in pairs (name and data)
+        for i in range(0, len(lines), 2):
+            name = lines[i].strip()
+            data = lines[i + 1].strip()
+            data_dict[name] = [[int(a) for a in x.split("-")] for x in data.split(" ")]
+    return data_dict
 
 def get_file_name_from_path(path: Path) -> str:
     """
