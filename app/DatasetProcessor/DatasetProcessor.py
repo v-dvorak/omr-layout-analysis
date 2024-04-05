@@ -31,7 +31,7 @@ class DatasetProcessor:
                  datasets: list[Dataset_OMR],
                  labels: list[str],
                  file_struct: FileStructure,
-                 verbose: bool,
+                 verbose: bool = False,
                  split: float = None,
                  count: int = None,
                  deduplicate: bool = False,
