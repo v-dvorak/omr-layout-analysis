@@ -21,3 +21,9 @@ class AudioLabs_v2(Dataset_OMR):
                                                 record["top"],
                                                 record["height"],
                                                 record["width"])
+    
+    def _get_coco_format(self, record: dict) -> list[int]:
+        output = []
+        for key in ["left", "top", "width", "height"]:
+            output.append(record[key])
+        return output

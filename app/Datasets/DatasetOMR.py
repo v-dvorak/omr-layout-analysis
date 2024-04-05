@@ -3,6 +3,7 @@ import shutil
 
 from ..Parser import ParserUtils
 from ..Parser import FileUtils
+from ..LabelKeeper.LabelKeeper import Label, Sheet
 
 class Dataset_OMR:
     """
@@ -12,6 +13,14 @@ class Dataset_OMR:
     nickname = ""
 
     def _download_proc(self, download_path: Path):
+        """
+        Download procedure for getting the neccessary data using `OmrDataset` nad `Downloader` from `omrdatasettools`.
+        
+        Is dataset-specific.
+        """
+        raise NotImplementedError
+    
+    def _get_coco_format(self, download_path: Path):
         """
         Download procedure for getting the neccessary data using `OmrDataset` nad `Downloader` from `omrdatasettools`.
         
@@ -50,7 +59,26 @@ class Dataset_OMR:
         """
         raise NotImplementedError
     
-    def parse_json_to_yolo(self, data: dict, labels: list[str]) -> list[list[int]]:
+    def parse_json_to_list(self, data: dict, labels: list[str]) -> list[list[int]]:
+        """
+        Takes data loaded from JSON into a dictionary and processes them into a list of records.
+        Where each record corresponds to one labelled object.
+
+        Args:
+        - data: loaded JSON through the "json" library
+        - labels: list of labels that are taken into account, labels not specified will not be processed
+
+        Returns:
+        - list of all found labels: in YOLO format, one label is one sublist
+        """
+        image_width, image_height = data["width"], data["height"]
+        annot = []
+        for i, label in enumerate(labels):
+            for record in data[label]:
+                annot.append(Label(i, *self._get_coco_format(record)))
+        return annot, (image_width, image_height)
+    
+    def parse_json_page(self, data: dict, labels: list[str]) -> list[list[int]]:
         """
         Takes data loaded from JSON into a dictionary and processes them into a list of records.
         Where each record corresponds to one labelled object.
@@ -74,7 +102,14 @@ class Dataset_OMR:
     
     def process_label(self, label_path: Path, output_path: Path, labels: list[str], clean: bool = False):
         data = FileUtils.read_json(label_path)
-        annot = self.parse_json_to_yolo(data, labels)
+        annot, size = self.parse_json_to_list(data, labels)
+        # print(len(annot))
+        annot.sort()
+        sheet = Sheet(annot)
+        # print(*sheet.get_all_yolo_labels(size[0], size[1]), sep="\n")
+        annot = sheet.get_all_yolo_labels(size[0], size[1])
+        # print(len(annot))
         if clean:
             annot = ParserUtils.get_unique_list(annot)
+        # annot = 
         FileUtils.write_rows_to_file(annot, output_path)

@@ -1,5 +1,4 @@
 from pathlib import Path
-import numpy as np
 import json
 import yaml
 from .FileStructure import FileStructure
@@ -18,24 +17,6 @@ def get_file_name_from_path(path: Path) -> str:
     - name of file as a string
     """
     return path.parts[-1].split(".")[0]
-
-def get_coords_relative_to_image_size(image_height: int, image_width: int, left: int, top: int, height: int, width: int) -> list[float]:
-    """
-    Takes coordinates in "AudioLabs v2" notation and returns them in YOLO format.
-
-    YOLO format:
-
-    `class x_center y_center width height`, relative to image width and height
-    """
-    return np.round(
-        [
-            (left + width / 2) / image_width,
-            (top + height / 2) / image_height,
-            width / image_width,
-            height / image_height,
-        ],
-        6,
-    )
 
 def read_json(filename: Path) -> dict:
     """
