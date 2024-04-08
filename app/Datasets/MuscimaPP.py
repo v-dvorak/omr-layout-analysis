@@ -6,9 +6,9 @@ from ..Parser import FileUtils
 
 class MuscimaPP(Dataset_OMR):
     """
-    Dataset class of the Musicma Plus Plus dataset.
+    Dataset class of the Muscima Plus Plus dataset.
     """
-    name = "MusicmaPlusPlus"
+    name = "MuscimaPlusPlus"
     nickname = "mpp"
     files_to_skip = ["all_measure_annotations.json",
                      "testing_measure_annotations.json",
