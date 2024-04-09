@@ -159,11 +159,11 @@ class DatasetProcessor:
             - tags generated files at the beginning of their name with dataset nickname, e.g.: `\"al2_filename\"
         """
                 
-        piano_annot = FileUtils.load_description_file_to_dictionary("ALv2_grand_staff.txt")
+        # piano_annot = FileUtils.load_description_file_to_dictionary("ALv2_grand_staff.txt")
 
         for dato in tqdm(data):
             if self._verbose:
-                print(piano_annot[dato.name])
+                # print(piano_annot[dato.name])
                 print(dato.name)
                 print(dato.img_path.parts[-1], dato.label_path.parts[-1])
             
@@ -175,7 +175,7 @@ class DatasetProcessor:
                         dato.label_path,
                         label_path / (tag + dato.name + ".txt"),
                         self._LABELS,
-                        piano=piano_annot[dato.name],
+                        # piano=piano_annot[dato.name],
                         clean=self._deduplicate
                     )
 
