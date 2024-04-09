@@ -36,7 +36,7 @@ def load_description_file_to_dictionary(file_path) -> Dict[str, list[list[int]]]
         for i in range(0, len(lines), 2):
             name = lines[i].strip()
             data = lines[i + 1].strip()
-            data_dict[name] = [[int(a) for a in x.split("-")] for x in data.split(" ")]
+            data_dict[name] = [[int(a.strip()) for a in x.split("-") if a] for x in data.split(" ")]
     return data_dict
 
 def get_file_name_from_path(path: Path) -> str:

@@ -130,6 +130,15 @@ class Sheet(LabelKeeper):
         cur_s_s = sorted(self._staves)
         index = self._labels.index("grand_staff")
 
+        # check
+        described = sum([sum(x) for x in piano])
+        if described < len(cur_s_s):
+            print(f"WARNING ⚠️ : {described} staves are described but there are {len(cur_s_s)} staves in image.")
+        if described > len(cur_s_s):
+            print(f"ERROR ⚠️ : {described} staves are described but there are {len(cur_s_s)} staves in image.")
+            print("Quitting job.")
+            quit()
+
         i = 0
         for k in range(len(piano)):
             pianinos = []
