@@ -22,6 +22,9 @@ class Label:
     def __str__(self) -> str:
         return f"c: {self.clss}, x: {self.x}, y: {self.y}, w: {self.width}, h: {self.height}"
     
+    def get_coco_coordinates(self):
+        return [self.x, self.y, self.width, self.height]
+    
     def get_coco_label(self):
         """
         Returns label in the COCO format with classification.
@@ -29,4 +32,16 @@ class Label:
         Returns:
         - label in format `[class, x, y, width, height]`
         """
-        return [self.clss, self.x, self.y, self.width, self.height]
+        return [self.clss, *self.get_coco_coordinates()]
+    
+    def get_coco_to_dict(self):
+        """
+        Returns label in the COCO format without classification inside a dictionary
+
+        Returns:
+        - label in format ` {"left": x, "top": y, "width": width, "height": height}`
+        """
+        output = {}
+        for lab, coord in zip(["left", "top", "width", "height"], self.get_coco_coordinates()):
+            output[lab] = coord
+        return output

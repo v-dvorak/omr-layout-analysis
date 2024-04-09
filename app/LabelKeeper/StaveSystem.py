@@ -84,3 +84,15 @@ class StaffSystem(LabelKeeper):
             output += label.__str__() + "\n"
         return output
     
+    def get_coco_to_dict(self):
+        """
+        Returns label in the COCO format without classification inside a dictionary
+
+        Returns:
+        - label in format ` {"left": x, "top": y, "width": width, "height": height}`
+        """
+        output = {}
+        for lab, coord in zip(["left", "top", "width", "height"], self.get_coco_coordinates()):
+            output[lab] = coord
+        return output
+    

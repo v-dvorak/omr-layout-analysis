@@ -12,7 +12,7 @@ class Sheet(LabelKeeper):
     Can return bounding boxes of whoel staff systems.
     """
 
-    def __init__(self, annot: list[Label], labels: list[str], piano: list[list[int]] = None, offset: int = 10) -> None:
+    def __init__(self, annot: list[Label], labels: list[str], piano: list[list[int]] = None, offset: int = 10, grand_limit: int = 0) -> None:
         self._system_measures: list[Label] = []  # 0
         self._stave_measures: list[Label] = []   # 1
         self._staves: list[Label] = []           # 2
@@ -20,6 +20,8 @@ class Sheet(LabelKeeper):
         self._staff_systems: list[StaffSystem] = [] # 3 !new in this class!
         self._grand_staff: list[Label] = [] # 4 !new in this class!
         
+        self._grand_limit = grand_limit
+
         self._labels = labels
 
         self._offset = offset
@@ -132,7 +134,7 @@ class Sheet(LabelKeeper):
         for k in range(len(piano)):
             pianinos = []
             for chunksize in piano[k]:
-                if chunksize == 0:
+                if chunksize == 0 or chunksize < self._grand_limit:
                     break
                 pianinos.append(cur_s_s[i:i+chunksize])
                 i += chunksize
@@ -141,12 +143,36 @@ class Sheet(LabelKeeper):
                 x, y, width, height, _, _ = find_bbox_for_multiples_bboxs(labs)
                 self._grand_staff.append(Label(index, x, y, width, height))
 
+    def _get_all_loaded_labels(self):
+        return [self._system_measures,
+                self._stave_measures,
+                self._staves,
+                self._staff_systems,
+                self._grand_staff]
+    
+    def _get_all_loaded_labels_with_names(self) -> tuple[list[list[Label]], list[str]]:
+        return zip(self._get_all_loaded_labels(), ["system_measures", "stave_measures", "staves", "systems", "grand_staff"])
+    
+    def _get_all_coco_to_dict(self):
+        output = []
+        for labels, name in self._get_all_loaded_labels_with_names():
+            output.append((name, [label.get_coco_to_dict() for label in labels]))
+        return output
+    
+    def get_coco_json_format(self, width: int, height: int) -> dict:
+        output = {}
+        output["width"] = width
+        output["height"] = height
+
+        for name, coords in self._get_all_coco_to_dict():
+            output[name] = coords
+
+        return output
+    
     def __str__(self) -> str:
-            all_labels = [self._system_measures, self._stave_measures, self._staves, self._staff_systems]
             output = ""
-            names = ["system_measures", "stave_measures", "staves", "systems"]
-            for i in range(len(all_labels)):
-                output = output + "\n#" + names[i] + "\n"
-                for label in all_labels[i]:
+            for labels, name in self._get_all_loaded_labels_with_names():
+                output = output + "\n#" + name + "\n"
+                for label in labels:
                     output = output + label.__str__() + "\n"
             return output
