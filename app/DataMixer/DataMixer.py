@@ -12,6 +12,7 @@ class DataMixer:
     """
     _data: list[DatoInfo] = []
     _cleaned: bool = False
+    piano_annot: list[list[int]]
 
     def __init__(self) -> None:
         self._data = []
@@ -39,6 +40,9 @@ class DataMixer:
             if self._data[i].name == label_name:
                 self._data[i].label_path = label_path
 
+    def add_piano_annot(self, data: list[list[int]]):
+        self.piano_annot = data
+    
     def _clean_up(self):
         """
         Internal method!

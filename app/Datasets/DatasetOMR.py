@@ -1,5 +1,6 @@
 from pathlib import Path
 import shutil
+import json
 
 from ..Parser import ParserUtils
 from ..Parser import FileUtils
@@ -100,19 +101,32 @@ class Dataset_OMR:
     
     def process_image(self, img_path: Path, output_path: Path):
         shutil.copy(img_path, output_path)
+
+    def preprocess_label(self, label_path: Path, output_path: Path, labels: list[str], piano: list[int] = None, deduplicate: bool = False,
+                         offset: int = 10, grand_limit: int = 0):
+        data = FileUtils.read_json(label_path) # load data
+        annot, image_size = self.parse_json_to_list(data, labels) # get list of annotations and image size
+        # label post-processing
+        if deduplicate:
+            annot = ParserUtils.get_unique_list(annot)
+
+        # initialize sheet, get labels
+        sheet = Sheet(annot, labels, piano=piano, offset=offset, grand_limit=grand_limit)
+        temp = sheet.get_coco_json_format(image_size[0], image_size[1])
+        with open(output_path, "w", encoding="utf8") as f:
+            json.dump(temp, f, indent=True)
     
-    def process_label(self, label_path: Path, output_path: Path, labels: list[str], piano: list[int] = None, clean: bool = False):
+    def process_label(self, label_path: Path, output_path: Path, labels: list[str], deduplicate: bool = False):
         data = FileUtils.read_json(label_path) # load data
         annot, image_size = self.parse_json_to_list(data, labels) # get list of annotations and image size
         
-        # initialize sheet, get labels
-        sheet = Sheet(annot, labels, piano=piano)
-
-        annot = sheet.get_all_yolo_labels(image_size)
-
         # label post-processing
-        if clean:
+        if deduplicate:
             annot = ParserUtils.get_unique_list(annot)
+
+        # initialize sheet, get labels
+        sheet = Sheet(annot, labels)
+        annot = sheet.get_all_yolo_labels(image_size)
 
         # write
         FileUtils.write_rows_to_file(annot, output_path)
