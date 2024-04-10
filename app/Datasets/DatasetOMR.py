@@ -13,6 +13,9 @@ class Dataset_OMR:
     """
     name = ""
     nickname = ""
+    def __init__(self, maker_mode: bool = False) -> None:
+        self._maker_mode = maker_mode
+        pass
 
     def _download_proc(self, download_path: Path):
         """
@@ -75,12 +78,28 @@ class Dataset_OMR:
         """
         image_width, image_height = data["width"], data["height"]
         annot = []
-        for i, label in enumerate(labels[:3]):
-            for record in data[label]:
-                annot.append(Label(i, *self._get_coco_format(record)))
+        
+        if self._maker_mode:
+            for i, label in enumerate(labels[:3]):
+                try:
+                    for record in data[label]:
+                        annot.append(Label(i, *self._get_coco_format(record)))
+                except KeyError:
+                    if label == "grand_staff":
+                        print(f"WARNING ⚠️ : Label \"{label}\" was not found in file description, skipping label.")
+        else:
+            for i, label in enumerate(labels):
+                try:
+                    for record in data[label]:
+                        annot.append(Label(i, *self._get_coco_format(record)))
+                except KeyError:
+                    if label == "grand_staff":
+                        print(f"WARNING ⚠️ : Label \"{label}\" was not found in file description, skipping label.")
+                
         return annot, (image_width, image_height)
     
-    def parse_json_page(self, data: dict, labels: list[str]) -> list[list[int]]:
+    def _legacy_parse_json_page(self, data: dict, labels: list[str]) -> list[list[int]]:
+        # TODO: think about removal
         """
         Takes data loaded from JSON into a dictionary and processes them into a list of records.
         Where each record corresponds to one labelled object.
@@ -94,7 +113,9 @@ class Dataset_OMR:
         """
         image_width, image_height = data["width"], data["height"]
         annot = []
+        # TODO: FIX this aaaaa
         for i, label in enumerate(labels[:3]):
+        # for i, label in enumerate(labels):
             for record in data[label]:
                 annot.append([i, *self._get_coords(image_height, image_width, record)])
         return annot

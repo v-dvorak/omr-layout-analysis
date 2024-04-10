@@ -27,10 +27,27 @@ class Sheet(LabelKeeper):
         self._offset = offset
         self._add_labels(annot)
 
-        if "system" in labels:
+        if "systems" in labels:
             self.make_staff_system()
-        if "grand_staff" in labels:
-            self.make_grand_staff(piano)
+        
+        if piano is not None:
+            if "grand_staff" in labels:
+                self.make_grand_staff(piano)
+
+    def _get_all_labels(self) -> list[list[Label]]:
+        return [self._system_measures, self._stave_measures, self._staves, self._staff_systems, self._grand_staff]
+    
+    def _add_label(self, label: Label):
+        """
+        Internal method!
+
+        Adds one label to predefined lists.
+        """
+        all_labels = self._get_all_labels()
+        for i in range(len(all_labels)):
+            if label.clss == i:
+                all_labels[i].append(label)
+                break
     
     def _sort_system_measures_into_systems(self):
         """
@@ -38,8 +55,9 @@ class Sheet(LabelKeeper):
 
         Sets up list of staff systems.
         """
+        clss = self._labels.index("systems")
         for labels in self._sort_into_bins(self._system_measures):
-            self._staff_systems.append(StaffSystem(labels))
+            self._staff_systems.append(StaffSystem(clss, labels))
 
     def _sort_staves_to_systems(self):
         for staff in self._staves:
@@ -86,20 +104,20 @@ class Sheet(LabelKeeper):
         Returns:
         - labels in format `[class, x, y, width, height]`
         """
-        all_labels: list[list[Label]] = [self._system_measures, self._stave_measures, self._staves]
+        all_labels: list[list[Label]] = self._get_all_labels()
         output = []
         
         for labels in all_labels:
             for label in labels:
                 output.append(label.get_coco_label())
         
-        if "system" in self._labels:
-            index = self._labels.index("system")
-            for label in self._staff_systems:
-                output.append([index] + label.get_coco_coordinates())
+        # if "systems" in self._labels:
+        #     index = self._labels.index("systems")
+        #     for label in self._staff_systems:
+        #         output.append([index] + label.get_coco_coordinates())
         
-        for label in self._grand_staff:
-            output.append(label.get_coco_label())
+        # for label in self._grand_staff:
+        #     output.append(label.get_coco_label())
 
         return output
     

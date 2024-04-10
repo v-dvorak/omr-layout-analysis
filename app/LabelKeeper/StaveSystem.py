@@ -40,7 +40,7 @@ class StaffSystem(LabelKeeper):
     Can me created from system measures.
     """
     
-    def __init__(self, system_measures: list[Label], offset: int = 10) -> None:
+    def __init__(self, clss: int, system_measures: list[Label], offset: int = 10) -> None:
         self._system_measures: list[Label] = []  # 0
         self._stave_measures: list[Label] = []   # 1
         self._staves: list[Label] = []           # 2
@@ -52,6 +52,8 @@ class StaffSystem(LabelKeeper):
         self._height: int
         self._bottom: int
         self._right: int
+
+        self._clss = clss
 
         self._offset = offset
         self._system_measures = system_measures
@@ -77,6 +79,9 @@ class StaffSystem(LabelKeeper):
         Returns coordinates encapsulating all given labels in COCO format, without! classification.
         """
         return [self._x, self._y, self._width, self._height]
+    
+    def get_coco_label(self):
+        return [self._clss, *self.get_coco_coordinates()]
     
     def __str__(self) -> str:
         output = f"c: system, x: {self._x}, y: {self._y}, w: {self._width}, h: {self._height} \n"

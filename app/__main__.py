@@ -56,7 +56,7 @@ if args.verbose:
         print(dat.name)
 
 # LABELS INIT
-POSSIBLE_LABELS = ["system_measures", "stave_measures", "staves", "system", "grand_staff"]
+POSSIBLE_LABELS = ["system_measures", "stave_measures", "staves", "systems", "grand_staff"]
 LABELS: list[str] = []
 
 if args.labels is None:

@@ -15,7 +15,7 @@ class PianoMaker:
     and optional arguments that determine the final form of the dataset.
     """
     # data control
-    _LABELS: list[str] = ["system_measures", "stave_measures", "staves", "system", "grand_staff"]
+    _LABELS: list[str] = ["system_measures", "stave_measures", "staves", "systems", "grand_staff"]
 
     def __init__(self,
                  dataset: Dataset_OMR,
