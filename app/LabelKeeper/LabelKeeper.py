@@ -20,13 +20,21 @@ class LabelKeeper:
         self._offset = offset
         self._add_labels(labels)
 
+    def _get_all_labels(self) -> list[list[Label]]:
+        """
+        Internal method!
+
+        Returns all labels stored inside this class. Should be overridden by subclasses.
+        """
+        return [self._system_measures, self._stave_measures, self._staves]
+
     def _add_label(self, label: Label):
         """
         Internal method!
 
         Adds one label to predefined lists.
         """
-        all_labels = [self._system_measures, self._stave_measures, self._staves]
+        all_labels = self._get_all_labels()
         for i in range(len(all_labels)):
             if label.clss == i:
                 all_labels[i].append(label)

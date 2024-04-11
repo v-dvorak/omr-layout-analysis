@@ -36,19 +36,7 @@ class Sheet(LabelKeeper):
 
     def _get_all_labels(self) -> list[list[Label]]:
         return [self._system_measures, self._stave_measures, self._staves, self._staff_systems, self._grand_staff]
-    
-    def _add_label(self, label: Label):
-        """
-        Internal method!
 
-        Adds one label to predefined lists.
-        """
-        all_labels = self._get_all_labels()
-        for i in range(len(all_labels)):
-            if label.clss == i:
-                all_labels[i].append(label)
-                break
-    
     def _sort_system_measures_into_systems(self):
         """
         Internal method!
