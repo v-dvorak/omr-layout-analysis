@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 
-from ..Datasets.Import import Dataset_OMR
+from ..Datasets.Import import Dataset_OMR, AudioLabs_v2, MuscimaPP
 from .PianoMaker import PianoMaker
 
 # ARGUMENT SETUP
@@ -25,7 +25,8 @@ parser.add_argument("-l", "--grand_limit", default=1, help="Minimal amount of st
 
 
 # DATASETS INIT
-dataset_database = Dataset_OMR.__subclasses__() # Python magic
+# dataset_database = Dataset_OMR.__subclasses__() # Python magic
+dataset_database = [AudioLabs_v2, MuscimaPP]
 for i in range(len(dataset_database)):
     dataset_database[i] = dataset_database[i](maker_mode=True)
 

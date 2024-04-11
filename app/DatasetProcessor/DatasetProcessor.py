@@ -5,7 +5,7 @@ from pathlib import Path
 from natsort import natsorted
 
 from ..Utils import FileUtils
-from ..Datasets.Import import Dataset_OMR
+from ..Datasets.Import import Dataset_OMR, StandardCOCO
 from ..DataMixer.DataMixer import DataMixer
 from ..Utils.FileStructure import FileStructure
 from ..DataMixer.DatoInfo import DatoInfo
@@ -29,7 +29,6 @@ class DatasetProcessor:
     _verbose: bool
 
     def __init__(self,
-                 datasets: list[Dataset_OMR],
                  labels: list[str],
                  file_struct: FileStructure,
                  verbose: bool = False,
@@ -38,7 +37,6 @@ class DatasetProcessor:
                  deduplicate: bool = False,
                  tag: bool = False) -> None:
 
-        self._DATASETS = datasets
         self._LABELS = labels
         self._file_struct = file_struct
         self._split = split
@@ -92,9 +90,10 @@ class DatasetProcessor:
         """
         Creates .yaml file in YOLO format necessary for model training.
         """
-        FileUtils.create_yaml_file_for_yolo(self._file_struct, self._LABELS)
+        FileUtils.create_yaml_file_for_yolo(self._file_struct, self._LABELS, verbose=self._verbose)
 
-    def load_dataset(self, current_dataset: Dataset_OMR) -> DataMixer:
+    @staticmethod
+    def load_dataset(images_path: Path, labels_path: Path) -> DataMixer:
         """
         Loads given dataset to a list of `DatoInfo`s.
 
@@ -105,30 +104,29 @@ class DatasetProcessor:
         - `DataMixer` loaded with records from given dataset
         """
         dat = DataMixer()
-        all_images_paths: list[Path] = natsorted(((self._file_struct.home / current_dataset.name).rglob("*.png")),
-                                                 key=Path)
-        all_labels_paths: list[Path] = natsorted(((self._file_struct.home / current_dataset.name).rglob("*.json")),
-                                                 key=Path)
+        all_images_paths: list[Path] = natsorted((images_path.rglob("*.png")), key=Path)
+        all_labels_paths: list[Path] = natsorted((labels_path.rglob("*.json")), key=Path)
         dat.process_file_dump(all_images_paths, all_labels_paths)
         return dat
 
-    def process_all_datasets(self):
+    def process_all_datasets(self, datasets: list[Dataset_OMR]):
         """
         Iterates through all datasets given at initialization and processes them.
         """
-        for dataset in self._DATASETS:
-            self.process_dataset(dataset)
+        for dataset in datasets:
+            self.process_dataset_from_fls(dataset)
 
         print("Job finished successfully, results are in:", Path(self._file_struct.output).absolute().resolve())
 
-    def process_dataset(self, current_dataset: Dataset_OMR):
+    def process_dataset_from_fls(self, current_dataset: Dataset_OMR):
         """
-        Processes single given dataset.
+        Processes single given dataset using the given file structure.
 
         Args:
         - dataset to be processed
         """
-        data_mixer = self.load_dataset(current_dataset)
+        data_mixer = self.load_dataset(self._file_struct.home / current_dataset.name,
+                                       self._file_struct.home / current_dataset.name)
 
         tag = ""
         if self._tag:
@@ -140,6 +138,26 @@ class DatasetProcessor:
             self.count_process_dataset(current_dataset, data_mixer, tag)
 
         print(f"Dataset {current_dataset.name} processed successfully.")
+
+    def process_dataset_from_path(self, data_path: Path, current_dataset: Dataset_OMR = StandardCOCO()):
+        """
+        Processes single given dataset using the given path.
+
+        Args:
+        - dataset to be processed
+        """
+        data_mixer = self.load_dataset(data_path, data_path)
+
+        tag = ""
+        if self._tag:
+            tag = current_dataset.nickname + "_"
+
+        if self._split is not None:
+            self.split_process_dataset(current_dataset, data_mixer, tag)
+        else:
+            self.count_process_dataset(current_dataset, data_mixer, tag)
+
+        print(f"Standard dataset at {data_path} processed successfully.")
 
     def _process_part_of_dataset(self,
                                  current_dataset: Dataset_OMR,
@@ -161,11 +179,9 @@ class DatasetProcessor:
         - optional:
             - tags generated files at the beginning of their name with dataset nickname, e.g.: `\"al2_filename\"
         """
-
         for dato in tqdm(data):
             if self._verbose:
                 print(dato.name)
-                print(dato.img_path.parts[-1], dato.label_path.parts[-1])
 
             current_dataset.process_image(
                 dato.img_path,
