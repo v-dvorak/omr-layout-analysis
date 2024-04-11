@@ -5,7 +5,7 @@ from PIL import Image, ImageTk
 from pathlib import Path
 import argparse
 
-from ...Parser.FileStructure import FileStructure
+from ...Utils.FileStructure import FileStructure
 from ...DatasetProcessor.DatasetProcessor import DatasetProcessor
 from ...Datasets.Import import Dataset_OMR
 from ...DataMixer.DataMixer import DataMixer

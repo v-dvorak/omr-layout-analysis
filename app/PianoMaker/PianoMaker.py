@@ -7,7 +7,8 @@ from natsort import natsorted
 from ..Datasets.Import import Dataset_OMR
 from ..DataMixer.DataMixer import DataMixer
 from ..DataMixer.DatoInfo import DatoInfo
-from ..Parser.FileUtils import load_description_file_to_dictionary
+from ..Utils.FileUtils import load_description_file_to_dictionary
+
 
 class PianoMaker:
     """
@@ -39,7 +40,7 @@ class PianoMaker:
         self._grand_limit: int = grand_limit
         self._verbose: bool = verbose
 
-    def print_datataset_names(self):
+    def print_dataset_names(self):
         """
         Prints out names of given datasets.
         """
@@ -74,8 +75,8 @@ class PianoMaker:
         - `DataMixer` loaded with records from given dataset
         """
         dat = DataMixer()
-        all_images_paths: list[Path] = natsorted(((self.dataset_path).rglob("*.png")), key=str)
-        all_labels_paths: list[Path] = natsorted(((self.dataset_path).rglob("*.json")), key=str)
+        all_images_paths: list[Path] = natsorted((self.dataset_path.rglob("*.png")), key=Path)
+        all_labels_paths: list[Path] = natsorted((self.dataset_path.rglob("*.json")), key=Path)
         dat.process_file_dump(all_images_paths, all_labels_paths)
         return dat
 

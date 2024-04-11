@@ -4,6 +4,7 @@ import yaml
 from .FileStructure import FileStructure
 from typing import Dict
 
+
 def load_description_file_to_dictionary(file_path) -> Dict[str, list[list[int]]]:
     """
     Loads given file into dictionary. 
@@ -21,7 +22,7 @@ def load_description_file_to_dictionary(file_path) -> Dict[str, list[list[int]]]
 
     """
     Annotation formatting:
-    - numbers correspong to number of staves in a grand staff
+    - numbers correspond to number of staves in a grand staff
     - numbers connected by `-` are part of the same system
     Example:
     - `1-2 2-2 2` - there is a total of three systems in this file
@@ -39,6 +40,7 @@ def load_description_file_to_dictionary(file_path) -> Dict[str, list[list[int]]]
             data_dict[name] = [[int(a.strip()) for a in x.split("-") if a] for x in data.split(" ")]
     return data_dict
 
+
 def get_file_name_from_path(path: Path) -> str:
     """
     Takes the last part of the path considered to be a file name
@@ -54,6 +56,7 @@ def get_file_name_from_path(path: Path) -> str:
     """
     return path.parts[-1].split(".")[0]
 
+
 def read_json(filename: Path) -> dict:
     """
     Reads json file into a dict.
@@ -64,6 +67,7 @@ def read_json(filename: Path) -> dict:
     with open(filename, "r", encoding="utf8") as file:
         # Load the file content into a JSON object
         return json.load(file)
+
 
 def write_rows_to_file(data: list[list[int]], filename: Path, dato_sep="\t", record_sep="\n"):
     """
@@ -86,8 +90,10 @@ def write_rows_to_file(data: list[list[int]], filename: Path, dato_sep="\t", rec
             file.write(dato_sep.join(line))
             file.write(record_sep)
 
+
 def get_all_subdirs(working_dir: Path) -> list[Path]:
     return [x for x in working_dir.iterdir() if x.is_dir()]
+
 
 def get_processed_number(working_dir: Path, folder_name: Path) -> Path:
     """
@@ -117,7 +123,7 @@ def get_processed_number(working_dir: Path, folder_name: Path) -> Path:
             try:
                 temp = int(x)
                 clean.append(temp)
-            except:  # noqa: E722
+            except ValueError:
                 pass
         
         clean.sort()
@@ -128,13 +134,14 @@ def get_processed_number(working_dir: Path, folder_name: Path) -> Path:
 
     return working_dir / (folder_name + latest)
 
-def create_file_structure(processed_dir: Path, home_dir: Path, verbose: bool = False,
+
+def create_file_structure(processed_dir: Path, home_dir: Path,
                           train: bool = False) -> FileStructure:
     """
     Creates folders for data.
 
     Args:
-    - processed_dir: file in which all the processed dat will be stored
+    - processed_dir: file in which all the processed data will be stored
     - train: if true, train subfolder is added
 
     Returns:
@@ -161,9 +168,11 @@ def create_file_structure(processed_dir: Path, home_dir: Path, verbose: bool = F
                          img_dir,
                          label_dir)
 
-def create_yaml_file_for_yolo(file_struct: FileStructure, labels: list[str], file_name: str = "config", verbose: bool = False):
+
+def create_yaml_file_for_yolo(file_struct: FileStructure, labels: list[str],
+                              file_name: str = "config", verbose: bool = False):
     """
-    Creates .yaml file in YOLO format neccessary for model training.
+    Creates .yaml file in YOLO format necessary for model training.
 
     Args:
     - file_struct: list of directories import for the project
@@ -200,13 +209,13 @@ def create_yaml_file_for_yolo(file_struct: FileStructure, labels: list[str], fil
     if verbose:
         print(f"{file_name}.yaml at {str(file_location.absolute())} created successfully.")
 
+
 ###############
 # LEGACY CODE #
 ###############
-
 def _legacy_create_yaml_file_for_yolo(final_dataset_dir: Path, img_dir_train: Path, labels: list[str], img_dir_val: Path = None, file_name: str = "config", verbose: bool = False):
     """
-    Creates .yaml file in YOLO format neccessary for model training.
+    Creates .yaml file in YOLO format necessary for model training.
 
     Args:
     - final_dataset_dir: main directory where all the processed data is stored

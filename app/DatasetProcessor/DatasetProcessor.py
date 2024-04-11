@@ -4,11 +4,12 @@ from tqdm import tqdm
 from pathlib import Path
 from natsort import natsorted
 
-from ..Parser import FileUtils
+from ..Utils import FileUtils
 from ..Datasets.Import import Dataset_OMR
 from ..DataMixer.DataMixer import DataMixer
-from ..Parser.FileStructure import FileStructure
+from ..Utils.FileStructure import FileStructure
 from ..DataMixer.DatoInfo import DatoInfo
+
 
 class DatasetProcessor:
     """
@@ -36,7 +37,7 @@ class DatasetProcessor:
                  count: int = None,
                  deduplicate: bool = False,
                  tag: bool = False) -> None:
-        
+
         self._DATASETS = datasets
         self._LABELS = labels
         self._file_struct = file_struct
@@ -48,7 +49,7 @@ class DatasetProcessor:
 
         self._run_checks()
 
-    def print_datataset_names(self):
+    def print_dataset_names(self):
         """
         Prints out names of given datasets.
         """
@@ -60,12 +61,12 @@ class DatasetProcessor:
         """
         Internal method!
 
-        Runs necessary checks after initilization.
+        Runs necessary checks after initialization.
         """
         if self._split is not None:
             self._check_ratio_in_bounds()
         self._check_split_ratio_def()
-    
+
     def _check_ratio_in_bounds(self) -> bool:
         """
         Internal method!
@@ -76,23 +77,23 @@ class DatasetProcessor:
         if self._split < 0 or self._split > 1:
             raise ValueError("Error: Split has to be a value between 0 and 1.")
         return True
-    
-    def _check_split_ratio_def(self):
-            """
-            Internal method!
 
-            Checks if dataset is big enough to fulfill users demands.
-            Raises a warning if not.
-            """
-            if self._count is not None and self._split is not None:
-                print(f"WARNING ⚠️ : Split is set to {float(self._split)}, Count will have no effect on output.")
+    def _check_split_ratio_def(self):
+        """
+        Internal method!
+
+        Checks if dataset is big enough to fulfill users demands.
+        Raises a warning if not.
+        """
+        if self._count is not None and self._split is not None:
+            print(f"WARNING ⚠️ : Split is set to {float(self._split)}, Count will have no effect on output.")
 
     def create_yaml_file(self):
         """
-        Creates .yaml file in YOLO format neccessary for model training.
+        Creates .yaml file in YOLO format necessary for model training.
         """
         FileUtils.create_yaml_file_for_yolo(self._file_struct, self._LABELS)
-        
+
     def load_dataset(self, current_dataset: Dataset_OMR) -> DataMixer:
         """
         Loads given dataset to a list of `DatoInfo`s.
@@ -104,18 +105,20 @@ class DatasetProcessor:
         - `DataMixer` loaded with records from given dataset
         """
         dat = DataMixer()
-        all_images_paths: list[Path] = natsorted(((self._file_struct.home / current_dataset.name).rglob("*.png")), key=str)
-        all_labels_paths: list[Path] = natsorted(((self._file_struct.home / current_dataset.name).rglob("*.json")), key=str)
+        all_images_paths: list[Path] = natsorted(((self._file_struct.home / current_dataset.name).rglob("*.png")),
+                                                 key=Path)
+        all_labels_paths: list[Path] = natsorted(((self._file_struct.home / current_dataset.name).rglob("*.json")),
+                                                 key=Path)
         dat.process_file_dump(all_images_paths, all_labels_paths)
         return dat
-    
+
     def process_all_datasets(self):
         """
         Iterates through all datasets given at initialization and processes them.
         """
         for dataset in self._DATASETS:
             self.process_dataset(dataset)
-        
+
         print("Job finished successfully, results are in:", Path(self._file_struct.output).absolute().resolve())
 
     def process_dataset(self, current_dataset: Dataset_OMR):
@@ -130,12 +133,12 @@ class DatasetProcessor:
         tag = ""
         if self._tag:
             tag = current_dataset.nickname + "_"
-        
+
         if self._split is not None:
             self.split_process_dataset(current_dataset, data_mixer, tag)
         else:
             self.count_process_dataset(current_dataset, data_mixer, tag)
-        
+
         print(f"Dataset {current_dataset.name} processed successfully.")
 
     def _process_part_of_dataset(self,
@@ -163,17 +166,17 @@ class DatasetProcessor:
             if self._verbose:
                 print(dato.name)
                 print(dato.img_path.parts[-1], dato.label_path.parts[-1])
-            
+
             current_dataset.process_image(
-                        dato.img_path,
-                        image_path / (tag + dato.name + ".png")
-                    )
+                dato.img_path,
+                image_path / (tag + dato.name + ".png")
+            )
             current_dataset.process_label(
-                        dato.label_path,
-                        label_path / (tag + dato.name + ".txt"),
-                        self._LABELS,
-                        deduplicate=self._deduplicate
-                    )
+                dato.label_path,
+                label_path / (tag + dato.name + ".txt"),
+                self._LABELS,
+                deduplicate=self._deduplicate
+            )
 
     def count_process_dataset(self, current_dataset: Dataset_OMR, data_mixer: DataMixer, tag: str = ""):
         """
@@ -192,10 +195,10 @@ class DatasetProcessor:
             to_process = data_mixer.get_all_data()
         else:
             to_process = data_mixer.get_part_of_data(whole_part=self._count)
-        
+
         self._process_part_of_dataset(current_dataset, to_process,
                                       self._file_struct.image, self._file_struct.label,
-                                      tag)            
+                                      tag)
 
     def split_process_dataset(self, current_dataset: Dataset_OMR, data_mixer: DataMixer, tag: str = ""):
         """

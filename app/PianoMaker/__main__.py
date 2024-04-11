@@ -9,7 +9,7 @@ from .PianoMaker import PianoMaker
 # ARGUMENT SETUP
 # TODO: description
 parser = argparse.ArgumentParser(
-    prog="OMR Dataset Parser",
+    prog="OMR Dataset Utils",
     description="Compiles chosen OMR datasets into a big one for future use for training the YOLOv8 model.",
     epilog=""
     )

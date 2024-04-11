@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 class FileStructure:
     """
     Stores data about the dataset output file structure.
@@ -11,7 +12,8 @@ class FileStructure:
     home: Path
     output: Path
 
-    def __init__(self, home_dir: Path, output_dir: Path, image_dir: Path, label_dir: Path, image_val_dir: Path = None, label_val_dir: Path = None):
+    def __init__(self, home_dir: Path, output_dir: Path, image_dir: Path, label_dir: Path,
+                 image_val_dir: Path = None, label_val_dir: Path = None):
         self.home = home_dir
         self.output = output_dir
         self.image = image_dir

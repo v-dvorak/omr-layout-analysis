@@ -1,5 +1,6 @@
-from ..Parser import ParserUtils
+from ..Utils import ParserUtils
 from .Label import Label
+
 
 class LabelKeeper:
     """
@@ -44,7 +45,7 @@ class LabelKeeper:
         """
         Internal method!
 
-        Adds multiple labels to predifined lists.
+        Adds multiple labels to predefined lists.
         """
         for label in labels:
             self._add_label(label)

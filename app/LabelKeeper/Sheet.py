@@ -1,24 +1,26 @@
 from .Label import Label
 from .LabelKeeper import LabelKeeper
-from .StaveSystem import StaffSystem, find_bbox_for_multiples_bboxs
-from ..Parser import ParserUtils
+from .StaveSystem import StaffSystem
+from ..Utils import ParserUtils, LabelUtils
 
 STAFF_SYSTEM_LABEL = 3
 PIANO_LABEL = 4
 
+
 class Sheet(LabelKeeper):
     """
     Represents a single sheet of paper.
-    Can return bounding boxes of whoel staff systems.
+    Can return bounding boxes of whole staff systems.
     """
 
-    def __init__(self, annot: list[Label], labels: list[str], piano: list[list[int]] = None, offset: int = 10, grand_limit: int = 0) -> None:
-        self._system_measures: list[Label] = []  # 0
-        self._stave_measures: list[Label] = []   # 1
-        self._staves: list[Label] = []           # 2
+    def __init__(self, annot: list[Label], labels: list[str], piano: list[list[int]] = None,
+                 offset: int = 10, grand_limit: int = 0) -> None:
+        self._system_measures: list[Label] = []         # 0
+        self._stave_measures: list[Label] = []          # 1
+        self._staves: list[Label] = []                  # 2
 
-        self._staff_systems: list[StaffSystem] = [] # 3 !new in this class!
-        self._grand_staff: list[Label] = [] # 4 !new in this class!
+        self._staff_systems: list[StaffSystem] = []     # 3 !new in this class!
+        self._grand_staff: list[Label] = []             # 4 !new in this class!
         
         self._grand_limit = grand_limit
 
@@ -68,18 +70,18 @@ class Sheet(LabelKeeper):
         Returns:
         - list of bins
         """
-        labels: list[Label] = sorted(labels, key=lambda label: label.y)
+        labels: list[Label] = sorted(labels, key=lambda elem: elem.y)
         bins: list[list[Label]] = [[]]
 
         for label in labels:
             added = False
             # check if label can be added to an existing bin
-            for bin in bins:
-                if bin != [] and abs(bin[-1].y - label.y) <= self._offset:
-                    bin.append(label)
+            for _bin in bins:
+                if _bin != [] and abs(_bin[-1].y - label.y) <= self._offset:
+                    _bin.append(label)
                     added = True
                     break
-            # label coouldnt be added to any existing bin, create a new bin
+            # label couldn't be added to any existing bin, create a new bin
             if not added:
                 bins.append([label])
 
@@ -147,15 +149,15 @@ class Sheet(LabelKeeper):
 
         i = 0
         for k in range(len(piano)):
-            pianinos = []
+            staff_collections = []
             for chunksize in piano[k]:
                 if chunksize == 0 or chunksize < self._grand_limit:
                     break
-                pianinos.append(cur_s_s[i:i+chunksize])
+                staff_collections.append(cur_s_s[i:i+chunksize])
                 i += chunksize
             
-            for labs in pianinos:
-                x, y, width, height, _, _ = find_bbox_for_multiples_bboxs(labs)
+            for labs in staff_collections:
+                x, y, width, height, _, _ = LabelUtils.find_bbox_for_multiples_bboxes(labs)
                 self._grand_staff.append(Label(index, x, y, width, height))
 
     def _get_all_loaded_labels(self):
@@ -166,7 +168,8 @@ class Sheet(LabelKeeper):
                 self._grand_staff]
     
     def _get_all_loaded_labels_with_names(self) -> tuple[list[list[Label]], list[str]]:
-        return zip(self._get_all_loaded_labels(), ["system_measures", "stave_measures", "staves", "systems", "grand_staff"])
+        return zip(self._get_all_loaded_labels(),
+                   ["system_measures", "stave_measures", "staves", "systems", "grand_staff"])
     
     def _get_all_coco_to_dict(self):
         output = []
@@ -175,9 +178,7 @@ class Sheet(LabelKeeper):
         return output
     
     def get_coco_json_format(self, width: int, height: int) -> dict:
-        output = {}
-        output["width"] = width
-        output["height"] = height
+        output = {"width": width, "height": height}
 
         for name, coords in self._get_all_coco_to_dict():
             output[name] = coords
@@ -185,9 +186,9 @@ class Sheet(LabelKeeper):
         return output
     
     def __str__(self) -> str:
-            output = ""
-            for labels, name in self._get_all_loaded_labels_with_names():
-                output = output + "\n#" + name + "\n"
-                for label in labels:
-                    output = output + label.__str__() + "\n"
-            return output
+        output = ""
+        for labels, name in self._get_all_loaded_labels_with_names():
+            output = output + "\n#" + name + "\n"
+            for label in labels:
+                output = output + label.__str__() + "\n"
+        return output

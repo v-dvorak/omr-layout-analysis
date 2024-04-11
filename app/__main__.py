@@ -3,15 +3,15 @@
 import argparse
 from pathlib import Path
 
-from .Parser import ParserUtils, FileUtils
-from .Parser.FileStructure import FileStructure
+from .Utils import ParserUtils, FileUtils
+from .Utils.FileStructure import FileStructure
 from .Datasets.Import import Dataset_OMR
 from .DatasetProcessor.DatasetProcessor import DatasetProcessor
 
 # ARGUMENT SETUP
 # TODO: description
 parser = argparse.ArgumentParser(
-    prog="OMR Dataset Parser",
+    prog="OMR Dataset Utils",
     description="Compiles chosen OMR datasets into a big one for future use for training the YOLOv8 model.",
     epilog=""
     )

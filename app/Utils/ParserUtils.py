@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def coco_to_yolo(label: list[int], image_width: int, image_height: int):
     """
     Takes coordinates in COCO format with class number and returns coordinates in YOLO format.
@@ -15,7 +16,9 @@ def coco_to_yolo(label: list[int], image_width: int, image_height: int):
     """
     return [label[0]] + get_coords_relative_to_image_size(image_height, image_width, *label[1::])
 
-def get_coords_relative_to_image_size(image_height: int, image_width: int, left: int, top: int, width: int, height: int) -> list[float]:
+
+def get_coords_relative_to_image_size(image_height: int, image_width: int,
+                                      left: int, top: int, width: int, height: int) -> list[float]:
     """
     Takes coordinates in "AudioLabs v2" notation and returns them in YOLO format.
 
@@ -32,6 +35,7 @@ def get_coords_relative_to_image_size(image_height: int, image_width: int, left:
         ],
         6,
     ))
+
 
 def get_unique_list(inp_list: list[any]) -> list[any]:
     """

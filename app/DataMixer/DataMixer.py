@@ -1,9 +1,9 @@
 from pathlib import Path
 from random import shuffle
-import numpy as np
 
 from .DatoInfo import DatoInfo
-from ..Parser.FileUtils import get_file_name_from_path
+from ..Utils.FileUtils import get_file_name_from_path
+
 
 class DataMixer:
     """
@@ -47,7 +47,7 @@ class DataMixer:
         """
         Internal method!
 
-        Iterates throught all data in internal database and removes those
+        Iterates through all data in internal database and removes those
         that are not considered complete. This approach eliminates the need
         for a special list with files to ignore.
         """
@@ -57,7 +57,7 @@ class DataMixer:
         
     def get_all_data(self) -> list[DatoInfo]:
         """
-        Retuns all data from the internal dataset. The dataset is cleaned before.
+        Returns all data from the internal dataset. The dataset is cleaned before.
         """
         self._clean_up()
         return self._data
@@ -89,7 +89,8 @@ class DataMixer:
         """
         shuffle(self._data)
 
-    def _check_ratio_in_bounds(self, ratio: float) -> bool:
+    @staticmethod
+    def _check_ratio_in_bounds(ratio: float) -> bool:
         """
         Internal method!
 
@@ -99,28 +100,30 @@ class DataMixer:
         if ratio < 0 or ratio > 1:
             raise ValueError("Error: Split has to be a value between 0 and 1.")
         return True
-    
+
     def _check_whole_part_in_bounds(self, whole_part: int):
         if whole_part > len(self._data):
-            print(f"WARNING ⚠️ : Requested number of files ({whole_part}) is greater than the count of files in database ({len(self._data)}).\n{len(self._data)} files will be returned.")
+            print(f"WARNING ⚠️ : Requested number of files ({whole_part}) is greater than the count of files in "
+                  f"database ({len(self._data)}).\n{len(self._data)} files will be returned.")
         return True
 
     def train_test_split(self, ratio: float = 0.9) -> tuple[list[DatoInfo], list[DatoInfo]]:
         """
         Splits the internal database by a given ration (default is 0.9) and returns them.
-        The lengths of retuned lists are: `total_length * ratio` and `total_length * (1 - ratio)`.
+        The lengths of returned lists are: `total_length * ratio` and `total_length * (1 - ratio)`.
 
         Args:
-        - ratio (optional) of two leghts of the two sets returned
+        - ratio (optional) of two lengths of the two sets returned
         """
         self._check_ratio_in_bounds(ratio)
         self._clean_up()
-        return np.split(self._data, [round(len(self._data) * ratio)])
+        split_index = round(len(self._data) * ratio)
+        return (self._data[:split_index], self._data[split_index:])
     
     def get_part_of_data(self, ratio: float = None, whole_part: int = None) -> list[DatoInfo]:
         """
         Returns the requested part of the internal database.
-        Length of list retuned is `total_length * ratio` if ratio option is chosen,
+        Length of list returned is `total_length * ratio` if ratio option is chosen,
         or `min(total_length, whole_part)` if whole part is chosen.
         Returns the first N elements of the internal database.
         """
