@@ -5,6 +5,7 @@ from pathlib import Path
 from natsort import natsorted
 
 from ..Utils import FileUtils
+from ..Utils.Settings import Settings
 from ..Datasets.Import import Dataset_OMR, StandardCOCO
 from ..DataMixer.DataMixer import DataMixer
 from ..Utils.FileStructure import FileStructure
@@ -104,8 +105,8 @@ class DatasetProcessor:
         - `DataMixer` loaded with records from given dataset
         """
         dat = DataMixer()
-        all_images_paths: list[Path] = natsorted((images_path.rglob("*.png")), key=Path)
-        all_labels_paths: list[Path] = natsorted((labels_path.rglob("*.json")), key=Path)
+        all_images_paths: list[Path] = natsorted((images_path.rglob(f"*{Settings.IMAGE_LOAD_FORMAT}")), key=Path)
+        all_labels_paths: list[Path] = natsorted((labels_path.rglob(f"*{Settings.COCO_LOAD_FORMAT}")), key=Path)
         dat.process_file_dump(all_images_paths, all_labels_paths)
         return dat
 
@@ -185,11 +186,11 @@ class DatasetProcessor:
 
             current_dataset.process_image(
                 dato.img_path,
-                image_path / (tag + dato.name + ".png")
+                image_path / (tag + dato.name + Settings.IMAGE_SAVE_FORMAT)
             )
             current_dataset.process_label(
                 dato.label_path,
-                label_path / (tag + dato.name + ".txt"),
+                label_path / (tag + dato.name + Settings.YOLO_SAVE_FORMAT),
                 self._LABELS,
                 deduplicate=self._deduplicate
             )

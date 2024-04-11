@@ -2,6 +2,7 @@ from .Label import Label
 from .LabelKeeper import LabelKeeper
 from .StaveSystem import StaffSystem
 from ..Utils import ParserUtils, LabelUtils
+from ..Utils.Settings import Settings
 
 STAFF_SYSTEM_LABEL = 3
 PIANO_LABEL = 4
@@ -29,11 +30,11 @@ class Sheet(LabelKeeper):
         self._offset = offset
         self._add_labels(annot)
 
-        if "systems" in labels:
+        if Settings.NAME_SYSTEMS in labels:
             self.make_staff_system()
         
         if piano is not None:
-            if "grand_staff" in labels:
+            if Settings.NAME_GRAND_STAFF in labels:
                 self.make_grand_staff(piano)
 
     def _get_all_labels(self) -> list[list[Label]]:
@@ -45,7 +46,7 @@ class Sheet(LabelKeeper):
 
         Sets up list of staff systems.
         """
-        clss = self._labels.index("systems")
+        clss = self._labels.index(Settings.NAME_SYSTEMS)
         for labels in self._sort_into_bins(self._system_measures):
             self._staff_systems.append(StaffSystem(clss, labels))
 
@@ -168,8 +169,7 @@ class Sheet(LabelKeeper):
                 self._grand_staff]
     
     def _get_all_loaded_labels_with_names(self) -> tuple[list[list[Label]], list[str]]:
-        return zip(self._get_all_loaded_labels(),
-                   ["system_measures", "stave_measures", "staves", "systems", "grand_staff"])
+        return zip(self._get_all_loaded_labels(), Settings.LABELS)
     
     def _get_all_coco_to_dict(self):
         output = []

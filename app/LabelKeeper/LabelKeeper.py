@@ -1,4 +1,5 @@
 from ..Utils import ParserUtils
+from ..Utils.Settings import Settings
 from .Label import Label
 
 
@@ -66,7 +67,7 @@ class LabelKeeper:
     def __str__(self) -> str:
         all_labels = [self._system_measures, self._stave_measures, self._staves]
         output = ""
-        names = ["system_measures", "stave_measures", "staves"]
+        names = [Settings.NAME_SYSTEM_MEASURE, Settings.NAME_STAVE_MEASURE, Settings.NAME_STAVES]
         for i in range(len(all_labels)):
             output = output + "\n#" + names[i] + "\n"
             for label in all_labels[i]:

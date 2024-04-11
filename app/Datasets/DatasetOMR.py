@@ -3,6 +3,7 @@ import shutil
 import json
 
 from ..Utils import ParserUtils
+from ..Utils.Settings import Settings
 from ..Utils import FileUtils
 from ..LabelKeeper.LabelKeeper import Label
 from ..LabelKeeper.Sheet import Sheet
@@ -87,7 +88,7 @@ class Dataset_OMR:
                     for record in data[label]:
                         annot.append(Label(i, *self._get_coco_format(record)))
                 except KeyError:
-                    if label == "grand_staff":
+                    if label == Settings.NAME_GRAND_STAFF:
                         print(f"WARNING ⚠️ : Label \"{label}\" was not found in file description, skipping label.")
         else:
             for i, label in enumerate(labels):
@@ -95,7 +96,7 @@ class Dataset_OMR:
                     for record in data[label]:
                         annot.append(Label(i, *self._get_coco_format(record)))
                 except KeyError:
-                    if label == "grand_staff":
+                    if label == Settings.NAME_GRAND_STAFF:
                         print(f"WARNING ⚠️ : Label \"{label}\" was not found in file description, skipping label.")
 
         return annot, (image_width, image_height)

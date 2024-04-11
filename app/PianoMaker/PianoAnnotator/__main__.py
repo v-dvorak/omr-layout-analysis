@@ -10,6 +10,7 @@ from ...DatasetProcessor.DatasetProcessor import DatasetProcessor
 from ...Datasets.Import import Dataset_OMR
 from ...DataMixer.DataMixer import DataMixer
 
+
 class ImageViewer:
     def __init__(self, master: tk.Tk, image_paths: list[Path], verbose: bool = False):
         self.master = master

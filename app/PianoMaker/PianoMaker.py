@@ -7,7 +7,8 @@ from natsort import natsorted
 from ..Datasets.Import import Dataset_OMR
 from ..DataMixer.DataMixer import DataMixer
 from ..DataMixer.DatoInfo import DatoInfo
-from ..Utils.FileUtils import load_description_file_to_dictionary
+from ..Utils import FileUtils
+from ..Utils.Settings import Settings
 
 
 class PianoMaker:
@@ -16,7 +17,7 @@ class PianoMaker:
     and optional arguments that determine the final form of the dataset.
     """
     # data control
-    _LABELS: list[str] = ["system_measures", "stave_measures", "staves", "systems", "grand_staff"]
+    _LABELS: list[str] = Settings.LABELS
 
     def __init__(self,
                  dataset: Dataset_OMR,
@@ -61,7 +62,7 @@ class PianoMaker:
     def process_dataset(self):
         self._create_file_structure()
         dat = self.load_dataset()
-        self._PIANO_ANNOT = load_description_file_to_dictionary(self.piano_path)
+        self._PIANO_ANNOT = FileUtils.load_description_file_to_dictionary(self.piano_path)
         self._process_part_of_dataset(self._DATASET, dat.get_all_data(), self.output_path_img, self.output_path_json)
         
     def load_dataset(self) -> DataMixer:
@@ -108,11 +109,11 @@ class PianoMaker:
             
             current_dataset.process_image(
                         dato.img_path,
-                        image_path / (tag + dato.name + ".png")
+                        image_path / (tag + dato.name + Settings.IMAGE_SAVE_FORMAT)
                     )
             current_dataset.preprocess_label(
                         dato.label_path,
-                        label_path / (tag + dato.name + ".json"),
+                        label_path / (tag + dato.name + Settings.COCO_SAVE_FORMAT),
                         self._LABELS,
                         piano=self._PIANO_ANNOT[dato.name],
                         deduplicate=True,

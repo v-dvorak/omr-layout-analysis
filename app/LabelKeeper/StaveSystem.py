@@ -1,6 +1,7 @@
 from .LabelKeeper import LabelKeeper
 from .Label import Label
 from ..Utils import LabelUtils
+from ..Utils.Settings import Settings
 
 
 class StaffSystem(LabelKeeper):
@@ -9,9 +10,9 @@ class StaffSystem(LabelKeeper):
     Can be created from system measures.
     """
     def __init__(self, clss: int, system_measures: list[Label], offset: int = 10) -> None:
-        self._system_measures: list[Label] = []  # 0
-        self._stave_measures: list[Label] = []  # 1
-        self._staves: list[Label] = []  # 2
+        self._system_measures: list[Label] = []     # 0
+        self._stave_measures: list[Label] = []      # 1
+        self._staves: list[Label] = []              # 2
 
         # variable init
         self._x: int
@@ -52,7 +53,7 @@ class StaffSystem(LabelKeeper):
         return [self._clss, *self.get_coco_coordinates()]
 
     def __str__(self) -> str:
-        output = f"c: system, x: {self._x}, y: {self._y}, w: {self._width}, h: {self._height} \n"
+        output = f"c: {Settings.NAME_SYSTEMS}, x: {self._x}, y: {self._y}, w: {self._width}, h: {self._height} \n"
         for label in self._staves:
             output += label.__str__() + "\n"
         return output

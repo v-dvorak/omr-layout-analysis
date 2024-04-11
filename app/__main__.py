@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .Utils import ParserUtils, FileUtils
 from .Utils.FileStructure import FileStructure
+from .Utils.Settings import Settings
 from .Datasets.Import import Dataset_OMR, AudioLabs_v2, MuscimaPP
 from .DatasetProcessor.DatasetProcessor import DatasetProcessor
 
@@ -68,7 +69,7 @@ if args.verbose:
         print(dat.name)
 
 # LABELS INIT
-POSSIBLE_LABELS = ["system_measures", "stave_measures", "staves", "systems", "grand_staff"]
+POSSIBLE_LABELS = Settings.LABELS
 LABELS: list[str] = []
 
 if args.labels is None:
@@ -116,4 +117,3 @@ for dataset_path in standard_datasets_to_work_with:
     dp.process_dataset_from_path(dataset_path)
 
 print("Job finished successfully, results are in:", Path(file_struct.output).absolute().resolve())
-# dp.process_all_datasets(datasets_to_work_with)
