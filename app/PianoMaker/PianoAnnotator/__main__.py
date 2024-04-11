@@ -133,7 +133,7 @@ if __name__ == "__main__":
     file_struct: FileStructure = FileStructure(HOME, "", "", "")
 
     # setup database, at this point in time only AudioLabs works
-    data_proc = DatasetProcessor(datasets_to_work_with, [], file_struct)
+    data_proc = DatasetProcessor([], file_struct)
     dat_mix: DataMixer = data_proc.load_dataset(datasets_to_work_with[0])
     names = [dat.name for dat in dat_mix.get_all_data()]
     names.sort()

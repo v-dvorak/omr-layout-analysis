@@ -1,5 +1,5 @@
-
 #!/usr/bin/env python3
+
 from tqdm import tqdm
 from pathlib import Path
 from natsort import natsorted

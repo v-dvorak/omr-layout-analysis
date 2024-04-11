@@ -5,7 +5,7 @@ from pathlib import Path
 
 from .Utils import ParserUtils, FileUtils
 from .Utils.FileStructure import FileStructure
-from .Datasets.Import import Dataset_OMR
+from .Datasets.Import import Dataset_OMR, AudioLabs_v2, MuscimaPP
 from .DatasetProcessor.DatasetProcessor import DatasetProcessor
 
 # ARGUMENT SETUP
@@ -22,14 +22,17 @@ parser.add_argument("output", help="Path to store the final dataset at.")
 parser.add_argument("-v", "--verbose", action="store_true", help="Make script verbose")
 parser.add_argument("-c", "--count", default=None, help="How many files from each dataset will be processed. Default is all.")
 parser.add_argument("--tag", action="store_true", help="Tags generated files with dataset nickname. Example: \"al2_filename\".")
-parser.add_argument("-l","--labels", nargs="+", help="Which labels to process. 0 : system_measures, 1 : stave_measures, 2 : staves. Default is all.")
+parser.add_argument("-l", "--labels", nargs="+", help="Which labels to process. 0 : system_measures, 1 : stave_measures, 2 : staves. Default is all.")
+parser.add_argument("--stad", nargs="+", help="Paths to standard COCO dataset.")
 parser.add_argument("--split", default=None, help="Train test split ratio.")
 parser.add_argument("--deduplicate", action="store_true", help="Checks for possible duplicates in labels and removes them. May affect performance.")
 
-# DATASETS INIT
-dataset_database = Dataset_OMR.__subclasses__() # Python magic
+# DATASETS ARGS INIT
+# dataset_database = Dataset_OMR.__subclasses__() # Python magic
+dataset_database = [AudioLabs_v2, MuscimaPP]
 for i in range(len(dataset_database)):
     dataset_database[i] = dataset_database[i]()
+
 
 # ADD OPTIONS TO ARGPARSE
 # add arguments for datasets
@@ -40,13 +43,22 @@ for current_dataset in dataset_database:
 
 args = parser.parse_args()
 
-# get dataset that will be processed
+# DATASETS TO PROCESS
+# predefined
 datasets_to_work_with: list[Dataset_OMR] = []
 for current_dataset in dataset_database:
     if getattr(args, current_dataset.nickname):
         datasets_to_work_with.append(current_dataset)
 
-if datasets_to_work_with == []:
+# standard, given by path
+if args.stad is not None:
+    standard_datasets_to_work_with = [Path(x) for x in args.stad]
+else:
+    standard_datasets_to_work_with = []
+
+dat_count = len(standard_datasets_to_work_with + datasets_to_work_with)
+
+if dat_count == 0:
     print("No datasets were specified, quitting job.")
     quit()
 
@@ -95,8 +107,13 @@ for current_dataset in datasets_to_work_with:
     current_dataset.download_dataset(file_struct.home)
 
 # DATASET PROCESSING
-dp = DatasetProcessor(datasets_to_work_with, LABELS, file_struct,
+dp = DatasetProcessor(LABELS, file_struct,
                       split=args.split, count=args.count, deduplicate=args.deduplicate, tag=args.tag,
                       verbose=args.verbose)
+for dataset in datasets_to_work_with:
+    dp.process_dataset_from_fls(dataset)
+for dataset_path in standard_datasets_to_work_with:
+    dp.process_dataset_from_path(dataset_path)
 
-dp.process_all_datasets()
+print("Job finished successfully, results are in:", Path(file_struct.output).absolute().resolve())
+# dp.process_all_datasets(datasets_to_work_with)
