@@ -6,6 +6,9 @@ __pycache__/
 # VSCode
 .vscode
 
+# PyCharm
+.idea
+
 # Datasets
 AudioLabs_v2.zip
 CVC_MUSCIMA_PP_Annotated-Images.zip
