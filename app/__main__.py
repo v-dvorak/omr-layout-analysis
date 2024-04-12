@@ -6,7 +6,7 @@ from pathlib import Path
 from .Utils import ParserUtils, FileUtils
 from .Utils.FileStructure import FileStructure
 from .Utils.Settings import Settings
-from .Datasets.Import import Dataset_OMR, AudioLabs_v2, MuscimaPP
+from .Datasets.Import import Dataset_OMR, StandardCOCO
 from .DatasetProcessor.DatasetProcessor import DatasetProcessor
 
 # ARGUMENT SETUP
@@ -29,11 +29,12 @@ parser.add_argument("--split", default=None, help="Train test split ratio.")
 parser.add_argument("--deduplicate", action="store_true", help="Checks for possible duplicates in labels and removes them. May affect performance.")
 
 # DATASETS ARGS INIT
-# dataset_database = Dataset_OMR.__subclasses__() # Python magic
-dataset_database = [AudioLabs_v2, MuscimaPP]
+dataset_database = Dataset_OMR.__subclasses__() # Python magic
 for i in range(len(dataset_database)):
-    dataset_database[i] = dataset_database[i]()
-
+    if dataset_database[i].__name__ == "StandardCOCO":
+        del dataset_database[i]
+    else:
+        dataset_database[i] = dataset_database[i]()
 
 # ADD OPTIONS TO ARGPARSE
 # add arguments for datasets

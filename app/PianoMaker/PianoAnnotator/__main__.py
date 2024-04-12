@@ -104,7 +104,10 @@ if __name__ == "__main__":
     # DATASETS INIT
     dataset_database = Dataset_OMR.__subclasses__() # Python magic
     for i in range(len(dataset_database)):
-        dataset_database[i] = dataset_database[i]()
+        if dataset_database[i].__name__ == "StandardCOCO":
+            del dataset_database[i]
+        else:
+            dataset_database[i] = dataset_database[i]()
 
     # ADD OPTIONS TO ARGPARSE
     # add arguments for datasets
@@ -143,7 +146,7 @@ if __name__ == "__main__":
     data_proc = DatasetProcessor([], file_struct)
     dat_mix: DataMixer = data_proc.load_dataset(path_to_dataset,
                                                 path_to_dataset)
-    
+
     names = [dat.name for dat in dat_mix.get_all_data()]
     names.sort()
     numbers = []
