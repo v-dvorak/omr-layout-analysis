@@ -92,13 +92,14 @@ if __name__ == "__main__":
     # TODO: description
     parser = argparse.ArgumentParser(
         prog="Piano Annotator",
-        description="Compiles chosen OMR datasets into a big one for future use for training the YOLOv8 model.",
+        description="Small, simple and most - of - the - time - working annotation app built",
         epilog=""
         )
 
     # Required positional argument: output file name
     parser.add_argument("output", help="Path to store the final dataset at.")
     parser.add_argument("-v", "--verbose", action="store_true", help="Make script verbose.")
+    parser.add_argument("--stad", help="Path to a standard COCO dataset.")
 
     # DATASETS INIT
     dataset_database = Dataset_OMR.__subclasses__() # Python magic
@@ -120,10 +121,10 @@ if __name__ == "__main__":
         if getattr(args, current_dataset.nickname):
             datasets_to_work_with.append(current_dataset)
 
-    if datasets_to_work_with == []:
+    if datasets_to_work_with == [] and args.stad is None:
         print("No datasets were specified, quitting job.")
         quit()
-    if len(datasets_to_work_with) > 1:
+    if len(datasets_to_work_with) > 1 or (len(datasets_to_work_with) == 1 and args.stad is not None):
         print("Too many datasets were specified, specify only one at a time, quitting job.")
         quit()
 
@@ -133,9 +134,16 @@ if __name__ == "__main__":
 
     file_struct: FileStructure = FileStructure(HOME, "", "", "")
 
+    if args.stad is None:
+        current_dataset = datasets_to_work_with[0]
+        path_to_dataset = Path(file_struct.home / current_dataset.name)
+    else:
+        path_to_dataset = Path(args.stad)
     # setup database, at this point in time only AudioLabs works
     data_proc = DatasetProcessor([], file_struct)
-    dat_mix: DataMixer = data_proc.load_dataset(datasets_to_work_with[0])
+    dat_mix: DataMixer = data_proc.load_dataset(path_to_dataset,
+                                                path_to_dataset)
+    
     names = [dat.name for dat in dat_mix.get_all_data()]
     names.sort()
     numbers = []
