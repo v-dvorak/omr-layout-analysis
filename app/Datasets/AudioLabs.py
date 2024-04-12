@@ -16,13 +16,6 @@ class AudioLabs_v2(Dataset_OMR):
     def _download_proc(self, download_path: Path):
         Downloader().download_and_extract_dataset(OmrDataset.AudioLabs_v2, download_path)
 
-    def _get_coords(self, image_height: int, image_width: int, record: dict) -> list[float]:
-        return ParserUtils.get_coords_relative_to_image_size(image_height, image_width,
-                                                             record["left"],
-                                                             record["top"],
-                                                             record["height"],
-                                                             record["width"])
-
     def _get_coco_format(self, record: dict) -> list[int]:
         output = []
         for key in ["left", "top", "width", "height"]:

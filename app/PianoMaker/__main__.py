@@ -3,14 +3,14 @@
 import argparse
 from pathlib import Path
 
-from ..Datasets.Import import Dataset_OMR, AudioLabs_v2, MuscimaPP
+from ..Datasets.Import import Dataset_OMR, AudioLabs_v2, MuscimaPP, StandardCOCO
 from .PianoMaker import PianoMaker
 
 # ARGUMENT SETUP
 # TODO: description
 parser = argparse.ArgumentParser(
     prog="OMR Dataset Utils",
-    description="Compiles chosen OMR datasets into a big one for future use for training the YOLOv8 model.",
+    description="Given a dataset and a file with additional labels makes a JSON combining both current dataset labels and the new ones.",
     epilog=""
     )
 
@@ -26,7 +26,7 @@ parser.add_argument("-l", "--grand_limit", default=1, help="Minimal amount of st
 
 # DATASETS INIT
 # dataset_database = Dataset_OMR.__subclasses__() # Python magic
-dataset_database = [AudioLabs_v2, MuscimaPP]
+dataset_database = [AudioLabs_v2, MuscimaPP, StandardCOCO]
 for i in range(len(dataset_database)):
     dataset_database[i] = dataset_database[i](maker_mode=True)
 

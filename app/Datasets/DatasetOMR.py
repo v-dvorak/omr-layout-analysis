@@ -49,7 +49,7 @@ class Dataset_OMR:
             Path.mkdir(download_path)
             self._download_proc(download_path)
 
-    def _get_coords(self, image_height: int, image_width: int, record: dict) -> list[float]:
+    def _legacy_get_coords(self, image_height: int, image_width: int, record: dict) -> list[float]:
         """
         Takes image dimensions and data (parsed from JSON),
         returns coordinates in AudioLabs_v2 structure.
@@ -120,7 +120,7 @@ class Dataset_OMR:
         for i, label in enumerate(labels[:3]):
             # for i, label in enumerate(labels):
             for record in data[label]:
-                annot.append([i, *self._get_coords(image_height, image_width, record)])
+                annot.append([i, *self._legacy_get_coords(image_height, image_width, record)])
         return annot
 
     def process_image(self, img_path: Path, output_path: Path):
