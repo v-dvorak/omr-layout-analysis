@@ -1,6 +1,6 @@
 class Settings:
     NAME_SYSTEM_MEASURE = "system_measures"
-    NAME_STAVE_MEASURE= "stave_measures"
+    NAME_STAVE_MEASURE = "stave_measures"
     NAME_STAVES = "staves"
     NAME_SYSTEMS = "systems"
     NAME_GRAND_STAFF = "grand_staff"
