@@ -1,6 +1,9 @@
 natsort==8.4.0
 numpy==1.24.2
 omrdatasettools==1.4.0
+Pillow==10.3.0
 PyYAML==6.0.1
+PyYAML==6.0.1
+Requests==2.31.0
+svgelements==1.9.6
 tqdm==4.66.1
-pillow~=10.2.0

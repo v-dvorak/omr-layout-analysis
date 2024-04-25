@@ -10,6 +10,7 @@ __pycache__/
 .idea
 
 # Datasets
+datasets
 AudioLabs_v2.zip
 CVC_MUSCIMA_PP_Annotated-Images.zip
 MUSCIMA-pp_v1.0-measure-annotations.zip
