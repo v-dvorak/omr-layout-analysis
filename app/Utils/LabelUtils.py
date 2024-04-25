@@ -1,4 +1,4 @@
-from app.LabelKeeper.Label import Label
+from ..LabelKeeper.Label import Label
 
 
 def find_bbox_for_multiples_bboxes(labels: list[Label]):

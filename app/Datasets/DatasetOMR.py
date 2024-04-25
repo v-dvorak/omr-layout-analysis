@@ -141,7 +141,8 @@ class Dataset_OMR:
         with open(output_path, "w", encoding="utf8") as f:
             json.dump(temp, f, indent=True)
 
-    def process_label(self, label_path: Path, output_path: Path, labels: list[str], deduplicate: bool = False):
+    def process_label(self, label_path: Path, output_path: Path, labels: list[str],
+                      deduplicate: bool = False, maker_mode: bool = False):
         data = FileUtils.read_json(label_path)  # load data
         annot, image_size = self.parse_json_to_list(data, labels)  # get list of annotations and image size
 
@@ -150,7 +151,7 @@ class Dataset_OMR:
             annot = ParserUtils.get_unique_list(annot)
 
         # initialize sheet, get labels
-        sheet = Sheet(annot, labels)
+        sheet = Sheet(annot, labels, maker_mode=maker_mode)
         annot = sheet.get_all_yolo_labels(image_size)
 
         # write

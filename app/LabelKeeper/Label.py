@@ -45,3 +45,11 @@ class Label:
         for lab, coord in zip(["left", "top", "width", "height"], self.get_coco_coordinates()):
             output[lab] = coord
         return output
+
+    def to_json(self) -> dict:
+        return {
+            "left": self.x,
+            "top": self.y,
+            "width": self.width,
+            "height": self.height,
+        }

@@ -15,7 +15,7 @@ class Sheet(LabelKeeper):
     """
 
     def __init__(self, annot: list[Label], labels: list[str], piano: list[list[int]] = None,
-                 offset: int = 10, grand_limit: int = 0) -> None:
+                 offset: int = 10, grand_limit: int = 0, maker_mode: bool = False) -> None:
         self._system_measures: list[Label] = []         # 0
         self._stave_measures: list[Label] = []          # 1
         self._staves: list[Label] = []                  # 2
@@ -30,12 +30,13 @@ class Sheet(LabelKeeper):
         self._offset = offset
         self._add_labels(annot)
 
-        if Settings.NAME_SYSTEMS in labels:
-            self.make_staff_system()
-        
-        if piano is not None:
-            if Settings.NAME_GRAND_STAFF in labels:
-                self.make_grand_staff(piano)
+        if maker_mode:
+            if Settings.NAME_SYSTEMS in labels:
+                self.make_staff_system()
+
+            if piano is not None:
+                if Settings.NAME_GRAND_STAFF in labels:
+                    self.make_grand_staff(piano)
 
     def _get_all_labels(self) -> list[list[Label]]:
         return [self._system_measures, self._stave_measures, self._staves, self._staff_systems, self._grand_staff]
