@@ -52,14 +52,19 @@ def extract_annotations_from_mscore_svg(
             elif cls == "BarLine":
                 bar_lines.append(element)
 
+    # Default empty values if page is empty / background
+    staves = []
+    bar_lines_final = []
+    systems = []
+    grand_staff = []
+    system_measures = []
+
     # Process the staff lines
     if len(staff_lines) > 0:
         staves = process_staff_lines(staff_lines)
 
-    # Process the bar lines
-    if len(bar_lines) > 0:
-        bar_lines_final = process_bar_lines(bar_lines, staves)
         systems, system_info = process_stave_systems(bar_lines, staves)
+        bar_lines_final = process_bar_lines(bar_lines, staves)
         grand_staff = process_grand_staff(svg_file)
         # process system measures:
         staff_count = [len(x) for x in system_info]
@@ -71,8 +76,6 @@ def extract_annotations_from_mscore_svg(
     svg_info[Settings.NAME_SYSTEMS] = [x.to_json() for x in systems]
     svg_info[Settings.NAME_GRAND_STAFF] = [x.to_json() for x in grand_staff]
     svg_info[Settings.NAME_SYSTEM_MEASURE] = [x.to_json() for x in system_measures]
-
-    print("Parsed score:", from_path_svg)
 
     # Save the information to a JSON file
     with open(to_path_json, "w") as json_file:

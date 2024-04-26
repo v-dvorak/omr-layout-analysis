@@ -32,9 +32,12 @@ def convert_mscx2format(
 
 def create_json_for_conversion(
         dataset_dir_path: Path,
+        files_to_convert: list[Path],
         file_extension: str = "png",
 ) -> Path:
-    """ Create a JSON file for the conversion of all .mscx files in the dataset directory to the specified format. """
+    """
+    Create a JSON file for the conversion of all .mscx files in the dataset directory to the specified format.
+    """
     conversion_list = []
 
     mscx_files = list(Path(dataset_dir_path).glob("**/*.mscx"))
