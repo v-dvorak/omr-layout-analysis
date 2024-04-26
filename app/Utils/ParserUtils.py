@@ -1,4 +1,5 @@
 import numpy as np
+from pathlib import Path
 
 
 def coco_to_yolo(label: list[int], image_width: int, image_height: int):
@@ -56,3 +57,11 @@ def get_unique_list(inp_list: list[any]) -> list[any]:
         if x not in unique_list:
             unique_list.append(x)
     return unique_list
+
+
+def print_parsing_error(file_path: Path, error: BaseException, i: int, total: int) -> None:
+    print()
+    print(f"⚠️ {i}/{total} Error when parsing: {file_path}")
+    print(f"File name: {file_path.parts[-1]}")
+    print(error)
+    print()

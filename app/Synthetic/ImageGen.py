@@ -14,25 +14,28 @@ from ..Utils.Settings import Settings
 
 
 def convert_mscx2format(
-        dataset_dir_path: Path,
+        paths_to_files: list[Path],
+        dataset_path: Path,
         file_extension: str = "png"
 ):
-    """ Convert all .mscx files in the dataset directory to the specified format. """
+    """
+    Convert all .mscx files in the dataset directory to the specified format.
+    """
 
     # Create a JSON file for the conversion
-    json_path = create_json_for_conversion(dataset_dir_path, file_extension)
+    json_path = create_json_for_conversion(paths_to_files, dataset_path, file_extension)
 
     # Run the conversion
     os.system(
         f"{Settings.MUSESCORE_PATH} -j {json_path}")
 
     # Remove the JSON file
-    os.remove(json_path)   #NOTE: netreba remove zatim asi, pokud ano, tak pouzit Path.unlink()???????
+    os.remove(json_path)
 
 
 def create_json_for_conversion(
-        dataset_dir_path: Path,
         files_to_convert: list[Path],
+        dataset_path: Path,
         file_extension: str = "png",
 ) -> Path:
     """
@@ -40,7 +43,7 @@ def create_json_for_conversion(
     """
     conversion_list = []
 
-    mscx_files = list(Path(dataset_dir_path).glob("**/*.mscx"))
+    mscx_files = files_to_convert
     mscx_files.sort()  # Sort files if not in the same directory
 
     for in_path in mscx_files:
@@ -53,7 +56,7 @@ def create_json_for_conversion(
             "out": str(out_path)
         })
 
-    output_json_path = Path(dataset_dir_path, f"tmp_{file_extension}.json")
+    output_json_path = Path(dataset_path, f"tmp_{file_extension}.json")
 
     with open(output_json_path, 'w') as json_file:
         json.dump(conversion_list, json_file, indent=4)
