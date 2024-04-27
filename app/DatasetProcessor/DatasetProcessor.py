@@ -6,7 +6,7 @@ from natsort import natsorted
 
 from ..Utils import FileUtils
 from ..Utils.Settings import Settings
-from ..Datasets.Import import Dataset_OMR, StandardCOCO
+from ..DatasetClasses.Import import Dataset_OMR, StandardCOCO
 from ..DataMixer.DataMixer import DataMixer
 from ..Utils.FileStructure import FileStructure
 from ..DataMixer.DatoInfo import DatoInfo

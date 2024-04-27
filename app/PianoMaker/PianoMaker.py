@@ -4,7 +4,7 @@ from tqdm import tqdm
 from pathlib import Path
 from natsort import natsorted
 
-from ..Datasets.Import import Dataset_OMR
+from ..DatasetClasses.Import import Dataset_OMR
 from ..DataMixer.DataMixer import DataMixer
 from ..DataMixer.DatoInfo import DatoInfo
 from ..Utils import FileUtils

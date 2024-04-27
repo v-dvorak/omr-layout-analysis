@@ -7,7 +7,7 @@ import argparse
 
 from ...Utils.FileStructure import FileStructure
 from ...DatasetProcessor.DatasetProcessor import DatasetProcessor
-from ...Datasets.Import import Dataset_OMR
+from ...DatasetClasses.Import import Dataset_OMR
 from ...DataMixer.DataMixer import DataMixer
 
 

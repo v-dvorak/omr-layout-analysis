@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 
-from ..Datasets.Import import Dataset_OMR, AudioLabs_v2, MuscimaPP, StandardCOCO
+from ..DatasetClasses.Import import Dataset_OMR, AudioLabs_v2, MuscimaPP, StandardCOCO
 from .PianoMaker import PianoMaker
 
 # ARGUMENT SETUP
@@ -58,4 +58,5 @@ pm = PianoMaker(datasets_to_work_with[0], Path(args.dataset_path), Path(args.out
                 offset=int(args.offset), grand_limit=int(args.grand_limit), verbose=args.verbose)
 
 pm.process_dataset()
-pm.print_final_message()
+if args.verbose:
+    pm.print_final_message()
