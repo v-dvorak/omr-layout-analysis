@@ -22,9 +22,8 @@ def download_dataset_from_url(url: str, zip_file_name: str, dataset_dir: Path = 
 
     response = requests.get(url, stream=True)
 
-    with open(file_path, "wb") as file:
-        for data in tqdm(response.iter_content()):
-            file.write(data)
+    with (open(file_path, "wb") as file):
+        file.write(response.content)
 
     with zipfile.ZipFile(file_path, 'r') as zip_ref:
         zip_ref.extractall(dataset_dir)
