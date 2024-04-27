@@ -32,12 +32,11 @@ parser.add_argument("--split", default=None, help="Train test split ratio.")
 parser.add_argument("--deduplicate", action="store_true", help="Checks for possible duplicates in labels and removes them. May affect performance.")
 
 # DATASETS ARGS INIT
-dataset_database = Dataset_OMR.__subclasses__() # Python magic
-for i in range(len(dataset_database)):
-    if dataset_database[i].__name__ == "StandardCOCO":
-        del dataset_database[i]
-    else:
-        dataset_database[i] = dataset_database[i]()
+_dataset_database = Dataset_OMR.__subclasses__() # Python magic
+dataset_database = []
+for i in range(len(_dataset_database)):
+    if _dataset_database[i].__name__ != "StandardCOCO":
+        dataset_database.append(_dataset_database[i])
 
 # ADD OPTIONS TO ARGPARSE
 # add arguments for datasets
