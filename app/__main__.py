@@ -36,7 +36,7 @@ _dataset_database = Dataset_OMR.__subclasses__() # Python magic
 dataset_database = []
 for i in range(len(_dataset_database)):
     if _dataset_database[i].__name__ != "StandardCOCO":
-        dataset_database.append(_dataset_database[i])
+        dataset_database.append(_dataset_database[i]())
 
 # ADD OPTIONS TO ARGPARSE
 # add arguments for datasets

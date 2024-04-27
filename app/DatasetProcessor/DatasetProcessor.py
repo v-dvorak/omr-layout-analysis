@@ -193,7 +193,7 @@ class DatasetProcessor:
                 label_path / (tag + dato.name + Settings.YOLO_SAVE_FORMAT),
                 self._LABELS,
                 deduplicate=self._deduplicate,
-                maker_mode=current_dataset._maker_mode
+                maker_mode=current_dataset.maker_mode
             )
 
     def count_process_dataset(self, current_dataset: Dataset_OMR, data_mixer: DataMixer, tag: str = ""):

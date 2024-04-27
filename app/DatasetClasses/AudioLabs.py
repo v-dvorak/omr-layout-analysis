@@ -1,8 +1,7 @@
 from pathlib import Path
-from omrdatasettools import Downloader, OmrDataset
 
 from .DatasetOMR import Dataset_OMR
-from ..Utils import ParserUtils
+from .download_dataset import download_dataset_from_url
 
 
 class AudioLabs_v2(Dataset_OMR):
@@ -11,10 +10,15 @@ class AudioLabs_v2(Dataset_OMR):
     """
     name = "AudioLabs_v2"
     nickname = "al2"
-    files_to_skip = ["all_annotations.json"]
+    download_url = "https://github.com/apacha/OMR-Datasets/releases/download/datasets/AudioLabs_v2.zip"
+    zip_name = "AudioLabs_v2.zip"
 
-    def _download_proc(self, download_path: Path):
-        Downloader().download_and_extract_dataset(OmrDataset.AudioLabs_v2, download_path)
+    def _download_proc(self, where: Path = Path("datasets")):
+        download_dataset_from_url(
+            self.download_url,
+            self.zip_name,
+            where
+        )
 
     def _get_coco_format(self, record: dict) -> list[int]:
         output = []

@@ -4,7 +4,7 @@ from PIL import Image
 import PIL.ImageOps
 
 from .DatasetOMR import Dataset_OMR
-from ..Utils import ParserUtils
+from .download_dataset import download_dataset_from_url
 
 
 class MuscimaPP(Dataset_OMR):
@@ -13,14 +13,12 @@ class MuscimaPP(Dataset_OMR):
     """
     name = "Muscima++"
     nickname = "mpp"
-    files_to_skip = ["all_measure_annotations.json",
-                     "testing_measure_annotations.json",
-                     "training_measure_annotations.json",
-                     "validation_measure_annotations.json"]
+    url = None
+    zip_name = None
 
-    def _download_proc(self, download_path: Path):
-        Downloader().download_and_extract_dataset(OmrDataset.MuscimaPlusPlus_MeasureAnnotations, download_path),
-        Downloader().download_and_extract_dataset(OmrDataset.MuscimaPlusPlus_Images, download_path)
+    def _download_proc(self, where: Path = Path("datasets")):
+        Downloader().download_and_extract_dataset(OmrDataset.MuscimaPlusPlus_Images, where / self.name)
+        Downloader().download_and_extract_dataset(OmrDataset.MuscimaPlusPlus_MeasureAnnotations, where / self.name)
 
     def _get_coco_format(self, record: dict) -> list[int]:
         return [record["left"],

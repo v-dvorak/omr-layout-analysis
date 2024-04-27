@@ -7,26 +7,21 @@ from ..Utils.Settings import Settings
 from ..Utils import FileUtils
 from ..LabelKeeper.LabelKeeper import Label
 from ..LabelKeeper.Sheet import Sheet
+from .download_dataset import download_dataset_from_url
 
 
 class Dataset_OMR:
     """
     \"Abstract\" base class from which all other dataset classes are derived.
     """
-    name = ""
-    nickname = ""
+    name: str = None
+    nickname: str = None
+    download_url: str = None
+    zip_name: str = None
 
-    def __init__(self, maker_mode: bool = False) -> None:
-        self._maker_mode = maker_mode
+    def __init__(self, maker_mode: bool = False):
+        self.maker_mode = maker_mode
         pass
-
-    def _download_proc(self, download_path: Path):
-        """
-        Download procedure for getting the necessary data using `OmrDataset` nad `Downloader` from `omrdatasettools`.
-        
-        Is dataset-specific.
-        """
-        raise NotImplementedError
 
     def _get_coco_format(self, download_path: Path):
         """
@@ -36,32 +31,14 @@ class Dataset_OMR:
         """
         raise NotImplementedError
 
-    def download_dataset(self, where: Path):
-        """
-        Downloads dataset using the `omrdatasettools` library. Stores it into given output file.        
-        """
+    def download_dataset(self, where: Path = Path("datasets")):
         if (where / self.name).exists():
-            print(f"Dataset {self.name} is already downloaded, quitting download job.")
+            print(f"Dataset {self.name} already downloaded")
             return
-        Path.mkdir(where / self.name)
-        self._download_proc(where / self.name)
+        else:
+            self._download_proc(where)
 
-    def _legacy_get_coords(self, image_height: int, image_width: int, record: dict) -> list[float]:
-        """
-        Takes image dimensions and data (parsed from JSON),
-        returns coordinates in AudioLabs_v2 structure.
-        These coordinates are ment to be transformed to YOLO's `xywh` format.
-        
-        Is dataset-specific.
-
-        Args:
-        - image_height:
-        - image_width:
-        - record: dictionary with information about one particular label, is dataset-specific
-
-        Returns:
-        - AL structure: `[left, top, height, width]` in absolute values.
-        """
+    def _download_proc(self, where: Path = Path("datasets")):
         raise NotImplementedError
 
     def parse_json_to_list(self, data: dict, labels: list[str]) -> tuple[list[Label], tuple[int, int]]:
@@ -79,7 +56,7 @@ class Dataset_OMR:
         image_width, image_height = data["width"], data["height"]
         annot = []
 
-        if self._maker_mode:
+        if self.maker_mode:
             for i, label in enumerate(labels[:3]):
                 try:
                     for record in data[label]:
@@ -97,28 +74,6 @@ class Dataset_OMR:
                         print(f"WARNING ⚠️ : Label \"{label}\" was not found in file description, skipping label.")
 
         return annot, (image_width, image_height)
-
-    def _legacy_parse_json_page(self, data: dict, labels: list[str]) -> list[list[Label]]:
-        # TODO: think about removal
-        """
-        Takes data loaded from JSON into a dictionary and processes them into a list of records.
-        Where each record corresponds to one labelled object.
-
-        Args:
-        - data: loaded JSON through the "json" library
-        - labels: list of labels that are taken into account, labels not specified will not be processed
-
-        Returns:
-        - list of all found labels: in YOLO format, one label is one sublist
-        """
-        image_width, image_height = data["width"], data["height"]
-        annot = []
-        # TODO: FIX this AAAAAAAAAA, this is now a legacy code. remove it
-        for i, label in enumerate(labels[:3]):
-            # for i, label in enumerate(labels):
-            for record in data[label]:
-                annot.append([i, *self._legacy_get_coords(image_height, image_width, record)])
-        return annot
 
     def process_image(self, img_path: Path, output_path: Path):
         shutil.copy(img_path, output_path)

@@ -1,6 +1,6 @@
 import os
 
-from .BColors import bcolors, print_done, print_header
+from .BColors import print_done, print_header
 
 
 def download():
