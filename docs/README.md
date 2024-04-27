@@ -27,7 +27,7 @@ In this dataset we distinguish between five musical objects:
 - the first measure starts at the start (left) of the staff, last measure ends by last bar line or by the end of the staff[^1]
 - there has to be music in the measure
 
-[^1] Even thought for the OsLiC scores missing ending bar lines are ruled out for the sake of keeping the code relatively simple.
+[^1] Even thought scores from OsLiC that are missing ending bar lines are ruled out for the sake of keeping the code relatively simple.
 
 ### Examples
 
