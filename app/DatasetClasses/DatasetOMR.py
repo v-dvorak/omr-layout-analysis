@@ -36,18 +36,15 @@ class Dataset_OMR:
         """
         raise NotImplementedError
 
-    def download_dataset(self, where: Path, dataset_name: Path = None):
+    def download_dataset(self, where: Path):
         """
         Downloads dataset using the `omrdatasettools` library. Stores it into given output file.        
         """
-        if dataset_name is None:
-            dataset_name = self.name
-        download_path: Path = where / dataset_name
-        if download_path.exists():
+        if (where / self.name).exists():
+            print(f"Dataset {self.name} is already downloaded, quitting download job.")
             return
-        else:
-            Path.mkdir(download_path)
-            self._download_proc(download_path)
+        Path.mkdir(where / self.name)
+        self._download_proc(where / self.name)
 
     def _legacy_get_coords(self, image_height: int, image_width: int, record: dict) -> list[float]:
         """
@@ -136,7 +133,7 @@ class Dataset_OMR:
             annot = ParserUtils.get_unique_list(annot)
 
         # initialize sheet, get labels
-        sheet = Sheet(annot, labels, piano=piano, offset=offset, grand_limit=grand_limit)
+        sheet = Sheet(annot, labels, piano=piano, offset=offset, grand_limit=grand_limit, maker_mode=True)
         temp = sheet.get_coco_json_format(image_size[0], image_size[1])
         with open(output_path, "w", encoding="utf8") as f:
             json.dump(temp, f, indent=True)

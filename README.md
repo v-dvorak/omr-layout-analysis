@@ -75,7 +75,7 @@ Test
 
 ## Other useful documentation
 
-- [How to work with other datasets than those provided by default](app/Datasets/README.md)
+- [How to work with other datasets than those provided by default](app/DatasetClasses/README.md)
 - [PianoMaker](app/PianoMaker/README.md), a small app that allow other labels to be added into an already existing dataset
 - [What is (not) annotated and why?](docs/README.md)
 - [Extracting annotations from OSLiC](app/Synthetic/README.md)

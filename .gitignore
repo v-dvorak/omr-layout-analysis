@@ -9,7 +9,7 @@ __pycache__/
 # PyCharm
 .idea
 
-# Datasets
+# DatasetClasses
 datasets
 AudioLabs_v2.zip
 CVC_MUSCIMA_PP_Annotated-Images.zip

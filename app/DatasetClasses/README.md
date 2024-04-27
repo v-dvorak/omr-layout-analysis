@@ -69,7 +69,7 @@ Dataset classes are loaded automatically - you only need to import it to
 `Datasets/Import.py`
 
 ```python
-# Datasets/Import.py
+# DatasetClasses/Import.py
 from .DatasetOMR import Dataset_OMR
 ...
 from .MyDatset import MyDataset
