@@ -89,6 +89,8 @@ In this dataset we distinguish between five musical objects:
 
 - ❌ ✅ here is an example of both valid and invalid braces, note that the invalid one (the first one) has a slightly different shape and is not associated with a score for piano
 
+![](/docs/examples/braces.png)
+
 ### Examples
 
 - ❌ ✅ first object is not a grand staff because it is not connected by the correct brace/bracket
