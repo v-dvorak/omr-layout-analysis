@@ -6,8 +6,11 @@ from pathlib import Path
 from .Utils import ParserUtils, FileUtils
 from .Utils.FileStructure import FileStructure
 from .Utils.Settings import Settings
-from .Datasets.Import import Dataset_OMR, StandardCOCO
+from .DatasetClasses.Import import Dataset_OMR, StandardCOCO
 from .DatasetProcessor.DatasetProcessor import DatasetProcessor
+from .Utils.build import build
+from .Utils.download import download
+
 
 # ARGUMENT SETUP
 # TODO: description
@@ -44,6 +47,15 @@ for current_dataset in dataset_database:
                         help=f"Includes the {current_dataset.name} dataset into final dataset.")
 
 args = parser.parse_args()
+
+# sketchy, but subparser will not work in this case without making it unnecessarily complicated
+if args.output == "build":
+    build()
+    quit()
+elif args.output == "download":
+    download()
+    quit()
+
 
 # DATASETS TO PROCESS
 # predefined
@@ -93,7 +105,8 @@ if args.count is not None:
 
 # DIRECTORIES INIT
 # set home for better navigation, everything is done in this working directory
-HOME = Path.absolute(Path(args.output) / "..").resolve()
+# HOME = Path.absolute(Path(args.output) / "..").resolve()
+HOME = Path("DatasetClasses")
 
 # create file structure to save data to
 processed_dir = FileUtils.get_processed_number(HOME, Path(args.output))

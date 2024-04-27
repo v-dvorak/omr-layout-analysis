@@ -3,7 +3,7 @@ from tqdm import tqdm
 import json
 import sys
 
-from ..Datasets.Oslic import OsLiC
+from ..DatasetClasses.Oslic import OsLiC
 from .ImageGen import convert_mscx2format
 from .AnnotExtraction.ExtractAnnotations import extract_annotations_from_mscore_svg
 from .BanProcessor import BanProcessor
@@ -116,7 +116,6 @@ def main():
 
     total = len(svg_paths)
     for i in tqdm(range(total), disable=VERBOSE):
-        print(i)
         svg_file = svg_paths[i]
         if VERBOSE:
             print(f"{i+1}/{total} Extracting from: {svg_file}", end="")
