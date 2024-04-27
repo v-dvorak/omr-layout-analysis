@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 
-from ..DatasetClasses.Import import Dataset_OMR, AudioLabs_v2, MuscimaPP, StandardCOCO
+from ..DatasetClasses.Import import Dataset_OMR
 from .PianoMaker import PianoMaker
 
 # ARGUMENT SETUP
@@ -29,7 +29,7 @@ _dataset_database = Dataset_OMR.__subclasses__() # Python magic
 dataset_database = []
 for i in range(len(_dataset_database)):
     if _dataset_database[i].__name__ != "StandardCOCO":
-        dataset_database.append(_dataset_database[i])
+        dataset_database.append(_dataset_database[i]())
 
 # ADD OPTIONS TO ARGPARSE
 # add arguments for datasets
@@ -53,6 +53,7 @@ if len(datasets_to_work_with) > 1:
     print("Too many datasets were specified, specify only one at a time, quitting job.")
     quit()
 
+datasets_to_work_with[0].maker_mode = True
 pm = PianoMaker(datasets_to_work_with[0], Path(args.dataset_path), Path(args.output_path), Path(args.piano_path),
                 offset=int(args.offset), grand_limit=int(args.grand_limit), verbose=args.verbose)
 
