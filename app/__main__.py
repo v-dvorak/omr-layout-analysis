@@ -105,7 +105,7 @@ if args.count is not None:
 # DIRECTORIES INIT
 # set home for better navigation, everything is done in this working directory
 # HOME = Path.absolute(Path(args.output) / "..").resolve()
-HOME = Path("DatasetClasses")
+HOME = Path(Path(args.output), "..").resolve()
 
 # create file structure to save data to
 processed_dir = FileUtils.get_processed_number(HOME, Path(args.output))
