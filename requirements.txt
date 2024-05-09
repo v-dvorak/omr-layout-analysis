@@ -8,3 +8,4 @@ PyYAML==6.0.1
 Requests==2.31.0
 svgelements==1.9.6
 tqdm==4.66.1
+ultralytics==8.1.29
