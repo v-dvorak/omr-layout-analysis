@@ -10,16 +10,18 @@ this README is a WIP
 
 From Moravská zemská knihovna - MZK.
 
-Using the [MZK search engine](https://www.digitalniknihovna.cz/mzk/search?access=open&licences=public&doctypes=sheetmusic) we can search specifically for open and public sheet music, there are thousands of them. MZK implements the really nice and convenient to use IIIF API. There are only two problems with it:
+Using the [MZK search engine](https://www.digitalniknihovna.cz/mzk/search?access=open&licences=public&doctypes=sheetmusic) we can search specifically for open and public sheet music, there are thousands of them. MZK implements the really nice and convenient to use [IIIF API](https://iiif.io/api/image/3.0/). There are only two problems with it:
 
 - I was not able to find any documentation on how to use this api to search for documents using filters. (Like "give me IDs to all sheet music documents".)
 - Page labelling is not consistent and some page IDs end up raising 4xx or 5xx errors.
 
 ### Searching for documents in MZK
 
-I ended up writing a scraper that loads a page from an url with specified search filters and page number (that way the program is able to load more than 60 document IDs at once) in which we search for this specific class `ng-star-inserted` which accompanies all the search result. In these classes we look for `href` and in them for `uuid` substring, when a class includes a link with this specific string in it the cryptic ID behind `uuid:` is ID of a document that corresponds to the search filters.
+I ended up writing a scraper that loads a page from an url with specified search filters and a page number (iterating through page numbers, the program is able to load more than 60 document IDs at once) in which we search for this specific class `ng-star-inserted` which accompanies all the search result. In these classes we look for `href` and in them for `uuid` substring, when a class includes a link with this specific substring, the cryptic ID behind `uuid:` is ID of a document that corresponds to the search filters.
 
-TODO: mention dynamic loading nad possible fixes
+#### Dynamic loading, troubleshooting
+
+The search results are loaded dynamically, this may lead to scraper quitting job because it wasn't able to find any relevant data. Good internet connection is in this case necessary to ensure the page load properly in reasonable time. If the problem still persists over multiple tries, try increasing the `timeout` param slightly.
 
 ### Getting specific pages
 
@@ -56,13 +58,11 @@ Downloading an image, if we know its ID, can be done using IIIF:
 "https://api.kramerius.mzk.cz/search/iiif/uuid:{img_id}/full/{size}/0/default.jpg"
 ```
 
-For `size` options see TODO: add IIIF docs. Default is `^!640,640` which roughly means that the longer side of requested image will be 640 pxs long, keeping the original aspect ratio. YOLOv8 resizes images to exactly this size, so we don't waste any memory by downloading unnecessarily large images. (The user can specify any custom image size using the `-s, --size` argument.)
+For `size` options see [IIIF docs](https://iiif.io/api/image/3.0/#42-size). Scrapers default is `^!640,640` which roughly means that the longer side of requested image will be 640 pxs long, maintaining the original aspect ratio. YOLOv8 resizes images to exactly this size, so we don't waste any memory by downloading unnecessarily large images. (The user can specify any custom image size using the `-s, --size` argument.)
 
 ### Handling errors
 
 Sometimes an interaction with MZK through IIIF may result into 4xx or 5xx error. To preserve sanity and keeping the scraper rather simple I decided to ignore these errors and to not investigate them any further. I want to blame the MZK's inconsistency, but I can't for sure say that there are not mistakes made on my side.
-
-![](https://api.kramerius.mzk.cz/search/iiif/uuid:37c18f61-cb2e-4d49-90c4-a25df0b00850/full/%5E!640,640/0/default.jpg)
 
 ## Labels provided by MZK
 
