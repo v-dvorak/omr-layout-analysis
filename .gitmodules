@@ -1,0 +1,3 @@
+[submodule "mzkscraper"]
+	path = mzkscraper
+	url = git@github.com:v-dvorak/mzkscraper.git
