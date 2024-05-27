@@ -1,10 +1,10 @@
-this README is a WIP
-
 # Negative samples (Background images)
 
 ## From the YOLO docs
 
-**Background images**. Background images are images with no objects that are added to a dataset to reduce False Positives (FP). We recommend about 0-10% background images to help reduce FPs (COCO has 1000 background images for reference, 1% of the total). No labels are required for background images.
+> **Background images**. Background images are images with no objects that are added to a dataset to reduce False Positives (FP). We recommend about 0-10% background images to help reduce FPs (COCO has 1000 background images for reference, 1% of the total). No labels are required for background images.
+
+The final dataset will consist of approximately ten thousand images, that means that we'll need around one thousand background images.
 
 ## Where do we get the images from?
 
@@ -15,54 +15,7 @@ Using the [MZK search engine](https://www.digitalniknihovna.cz/mzk/search?access
 - I was not able to find any documentation on how to use this api to search for documents using filters. (Like "give me IDs to all sheet music documents".)
 - Page labelling is not consistent and some page IDs end up raising 4xx or 5xx errors.
 
-### Searching for documents in MZK
-
-I ended up writing a scraper that loads a page from an url with specified search filters and a page number (iterating through page numbers, the program is able to load more than 60 document IDs at once) in which we search for this specific class `ng-star-inserted` which accompanies all the search result. In these classes we look for `href` and in them for `uuid` substring, when a class includes a link with this specific substring, the cryptic ID behind `uuid:` is ID of a document that corresponds to the search filters.
-
-#### Dynamic loading, troubleshooting
-
-The search results are loaded dynamically, this may lead to scraper quitting job because it wasn't able to find any relevant data. Good internet connection is in this case necessary to ensure the page load properly in reasonable time. If the problem still persists over multiple tries, try increasing the `timeout` param slightly.
-
-### Getting specific pages
-
-Knowing the document ID we can finally use an IIIF to retrieve information about it: `https://iiif.digitalniknihovna.cz/mzk/uuid:{ID}`. We are mostly interested in the field of `"items"` which contains information about every single scanned page in this publication.
-
-Its label is stored as a list of labels - in our case we only consider the first one and that's usually the only one there is. And let's not get fooled - the image ID (which we can use to later download the image though IIIF) is not stored at `"id"` but rather at `"thumbnail"["id"]`. The two urls are different and the first one does not work for this use case.
-
-```json
-"items":[{
-  "id":"URL1",
-  "type":"Canvas",
-  "label": {
-    "none":
-      ["[1] (sheetmusic)"]
-  },
-  "width":1000,
-  "height":1000,
-  "thumbnail":{
-    "id":"URL2",
-    "type":"Image"
-  },
-  ...  
-  },
-  ...
-]
-...
-```
-
-### Downloading images
-
-Downloading an image, if we know its ID, can be done using IIIF:
-
-```
-"https://api.kramerius.mzk.cz/search/iiif/uuid:{img_id}/full/{size}/0/default.jpg"
-```
-
-For `size` options see [IIIF docs](https://iiif.io/api/image/3.0/#42-size). Scrapers default is `^!640,640` which roughly means that the longer side of requested image will be 640 pxs long, maintaining the original aspect ratio. YOLOv8 resizes images to exactly this size, so we don't waste any memory by downloading unnecessarily large images. (The user can specify any custom image size using the `-s, --size` argument.)
-
-### Handling errors
-
-Sometimes an interaction with MZK through IIIF may result into 4xx or 5xx error. To preserve sanity and keeping the scraper rather simple I decided to ignore these errors and to not investigate them any further. I want to blame the MZK's inconsistency, but I can't for sure say that there are not mistakes made on my side.
+### [How does MZKScraper work?](https://github.com/v-dvorak/mzkscraper/blob/main/docs/README.md)
 
 ## Labels provided by MZK
 
@@ -139,5 +92,6 @@ Sometimes an interaction with MZK through IIIF may result into 4xx or 5xx error.
   ![](https://api.kramerius.mzk.cz/search/iiif/uuid:aa4ce04a-9c37-49fe-827a-f09d3a2b2e81/full/%5E!640,640/0/default.jpg)
 
 - Fragments of bookbinding
+  - fun fact: in all the search results this is the only "fragments of bookbinding" picture
 
-  ![](https://api.kramerius.mzk.cz/search/iiif/uuid:29e3938f-bc72-4ec1-aeec-d54d908a99b0/full/%5E!640,640/0/default.jpg)
+    ![](https://api.kramerius.mzk.cz/search/iiif/uuid:29e3938f-bc72-4ec1-aeec-d54d908a99b0/full/%5E!640,640/0/default.jpg)
