@@ -31,7 +31,7 @@ The number of representative images for each label was counted as $\left\lceil\f
 \cdot \: \text{\# images wanted}}{\text{\# samples in total}}\right\rceil$, this ensures that the number of
 representative images in total is around the value we want (1000 images).
 
-For quick image overview see [image grids](./docs/grids.md).
+For quick image overview see [image grids](./docs/README.md).
 
 | Label                    |  Count   |
 |:-------------------------|:--------:|
