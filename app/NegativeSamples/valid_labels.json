@@ -1,0 +1,39 @@
+{
+    "VALID_LABELS": [
+        "frontCover",
+        "FrontCover",
+        "frontEndSheet",
+        "FrontEndSheet",
+        "blank",
+        "backEndSheet",
+        "BackEndSheet",
+        "backCover",
+        "BackCover",
+        "titlePage",
+        "TitlePage",
+        "backEndPaper",
+        "tableOfContents",
+        "TableOfContents",
+        "index",
+        "Index",
+        "frontEndPaper",
+        "FrontEndPaper",
+        "Illustration",
+        "illustration",
+        "fragmentsOfBookbinding",
+        "FragmentsOfBookbinding"
+    ],
+    "INVALID_LABELS": [
+        "sheetmusic",
+        "calibrationTable",
+        "FlyLeaf",
+        "flyLeaf",
+        "normalPage",
+        "NormalPage",
+        "spine",
+        "Spine",
+        "edge",
+        "Edge",
+        "cover"
+    ]
+}
