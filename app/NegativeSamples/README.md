@@ -27,8 +27,8 @@ convenient to use [IIIF API](https://iiif.io/api/image/3.0/). There are only two
 
 ## Numbers of representative images
 
-The number of representative images for each label was counted as $\left\lceil\frac{\text{\char"0023 samples of label} \:
-\cdot \: \text{\char"0023 images wanted}}{\text{\char"0023 samples in total}}\right\rceil$, this ensures that the number of
+The number of representative images for each label was counted as $\left\lceil\frac{\#\text{ samples of label} \:
+\cdot \: \#\text{ images wanted}}{\#\text{ samples in total}}\right\rceil$, this ensures that the number of
 representative images in total is around the value we want (1000 images).
 
 For quick image overview see [image grids](./docs/README.md).
