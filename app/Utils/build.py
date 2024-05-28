@@ -1,5 +1,5 @@
 import os
-from datetime import date
+from datetime import datetime
 from pathlib import Path
 
 from .BColors import print_done, print_header
@@ -32,7 +32,7 @@ def build():
 
     # collect all datasets and combine them into a single one
     print_header("Combining all datasets into one.")
-    dataset_name = f"{date.today().strftime('%Y_%m_%d')}_final_dataset"
+    dataset_name = f"{date.now().strftime('%Y_%m_%d_%H_%M_%S')}_final_dataset"
     os.system(
         f"python3 -m app ./datasets/{dataset_name} --stad ./datasets/al2_gs ./datasets/mpp_gs ./datasets/Lieder-main ./datasets/NegativeSamples")
     print_done(f"Datasets combined successfully, the final dataset is at {Path(dataset_name).resolve().absolute()}")
