@@ -30,4 +30,5 @@ def build():
     dataset_name = f"{date.today().strftime('%Y_%m_%d')}_final_dataset"
     os.system(
         f"python3 -m app ./datasets/{dataset_name} --stad ./datasets/al2_gs ./datasets/mpp_gs ./datasets/Lieder-main")
-    print_done(f"Datasets combined successfully, the final dataset is at {Path(dataset_name).resolve().absolut()}")
+    print_done(f"Datasets combined successfully, the final dataset is at {Path(dataset_name).resolve().absolute()}")
+    
