@@ -1,5 +1,7 @@
 # Grids of chosen images
 
+All images are resized to have a 1:1 aspect ratio. Some images were dropped from the grids (usually less than ten) for the grid to have a nicer aspect ratio.
+
 ## Back cover
 
 ![](back_cover_grid.png)

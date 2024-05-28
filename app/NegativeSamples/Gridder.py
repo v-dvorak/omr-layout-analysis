@@ -4,7 +4,7 @@ from pathlib import Path
 
 DATASET_DIR = Path("datasets/NegativeSamples")
 
-with open("app/NegativeSamples/chosen.json", "r", encoding="utf8") as f:
+with open("app/NegativeSamples/scraped_data/chosen.json", "r", encoding="utf8") as f:
     data = json.load(f)
 
 dimensions = {

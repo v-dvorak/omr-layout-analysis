@@ -2,7 +2,7 @@ import json
 import math
 import random
 
-with open("app/NegativeSamples/pages.json", "r", encoding="utf8") as f:
+with open("app/NegativeSamples/scraped_data/pages.json", "r", encoding="utf8") as f:
     data = json.load(f)
 
 total = data["count"]
@@ -13,7 +13,7 @@ sample_count = []
 for key, value in data.items():
     if key == "count":
         continue
-    # print(f"{key}: {math.ceil(value['count'] / total * max_repre)} from {value['count']}")
+
     sample_count.append(math.ceil(value['count'] / total * max_repre))
 
 # choose random pages to represent
@@ -41,5 +41,5 @@ for key, value in data.items():
         unique_id += 1
 
 # save data
-with open("app/NegativeSamples/chosen.json", "w", encoding="utf8") as f:
+with open("app/NegativeSamples/scraped_data/chosen.json", "w", encoding="utf8") as f:
     json.dump(data, f, indent=4)

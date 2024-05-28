@@ -4,7 +4,7 @@ from tqdm import tqdm
 import json
 
 # load data
-with open("app/NegativeSamples/chosen.json", "r", encoding="utf8") as f:
+with open("app/NegativeSamples/scraped_data/chosen.json", "r", encoding="utf8") as f:
     data = json.load(f)
 
 scraper = MZKScraper()
