@@ -25,6 +25,11 @@ def build():
     os.system(f"python3 -m app.Synthetic --png --svg")
     print_done("Preprocessing OSLiC done.")
 
+    # add white backgrounds to transparent PNGs
+    print_header("Adding white backgrounds to transparent PNGs:")
+    os.system("python3 -m app.Synthetic.WhiteBackground")
+    print_done("Background done.")
+
     # create annotations for Negative Samples dataset
     print_header("Creating annotations for negative samples:")
     os.system("python3 -m app.NegativeSamples.build")
@@ -32,7 +37,7 @@ def build():
 
     # collect all datasets and combine them into a single one
     print_header("Combining all datasets into one.")
-    dataset_name = f"{date.now().strftime('%Y_%m_%d_%H_%M_%S')}_final_dataset"
+    dataset_name = f"{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}_final_dataset"
     os.system(
         f"python3 -m app ./datasets/{dataset_name} --stad ./datasets/al2_gs ./datasets/mpp_gs ./datasets/Lieder-main ./datasets/NegativeSamples")
     print_done(f"Datasets combined successfully, the final dataset is at {Path(dataset_name).resolve().absolute()}")
