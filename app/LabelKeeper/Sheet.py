@@ -3,9 +3,11 @@ from .LabelKeeper import LabelKeeper
 from .StaveSystem import StaffSystem
 from ..Utils import ParserUtils, LabelUtils
 from ..Utils.Settings import Settings
+from typing import Any, TypeVar
 
 STAFF_SYSTEM_LABEL = 3
 PIANO_LABEL = 4
+T = TypeVar('T')
 
 
 class Sheet(LabelKeeper):
@@ -16,13 +18,13 @@ class Sheet(LabelKeeper):
 
     def __init__(self, annot: list[Label], labels: list[str], piano: list[list[int]] = None,
                  offset: int = 10, grand_limit: int = 0, maker_mode: bool = False) -> None:
-        self._system_measures: list[Label] = []         # 0
-        self._stave_measures: list[Label] = []          # 1
-        self._staves: list[Label] = []                  # 2
+        self._system_measures: list[Label] = []  # 0
+        self._stave_measures: list[Label] = []  # 1
+        self._staves: list[Label] = []  # 2
 
-        self._staff_systems: list[StaffSystem] = []     # 3 !new in this class!
-        self._grand_staff: list[Label] = []             # 4 !new in this class!
-        
+        self._staff_systems: list[StaffSystem] = []  # 3 !new in this class!
+        self._grand_staff: list[Label] = []  # 4 !new in this class!
+
         self._grand_limit = grand_limit
 
         self._labels = labels
@@ -60,7 +62,7 @@ class Sheet(LabelKeeper):
             if system.is_in(label):
                 system._add_label(label)
                 break
-    
+
     def _sort_into_bins(self, labels: list[Label]) -> list[list[Label]]:
         """
         Sorts given list of labels using a greedy algorithm.
@@ -98,21 +100,21 @@ class Sheet(LabelKeeper):
         """
         all_labels: list[list[Label]] = self._get_all_labels()
         output = []
-        
+
         for labels in all_labels:
             for label in labels:
                 output.append(label.get_coco_label())
-        
+
         # if "systems" in self._labels:
         #     index = self._labels.index("systems")
         #     for label in self._staff_systems:
         #         output.append([index] + label.get_coco_coordinates())
-        
+
         # for label in self._grand_staff:
         #     output.append(label.get_coco_label())
 
         return output
-    
+
     def get_all_yolo_labels(self, image_size: tuple[int, int]) -> list[list[int]]:
         """
         Returns all labels in the YOLO format with classification.
@@ -128,7 +130,7 @@ class Sheet(LabelKeeper):
         for label in self.get_all_coco_labels():
             output.append(ParserUtils.coco_to_yolo(label, image_width, image_height))
         return output
-    
+
     def make_staff_system(self):
         self._sort_system_measures_into_systems()
 
@@ -151,16 +153,29 @@ class Sheet(LabelKeeper):
 
         i = 0
         for k in range(len(piano)):
-            staff_collections = []
-            for chunksize in piano[k]:
-                if chunksize == 0 or chunksize < self._grand_limit:
-                    break
-                staff_collections.append(cur_s_s[i:i+chunksize])
-                i += chunksize
-            
-            for labs in staff_collections:
-                x, y, width, height, _, _ = LabelUtils.find_bbox_for_multiples_bboxes(labs)
-                self._grand_staff.append(Label(index, x, y, width, height))
+            pos_gs_index = self._get_index_of_last_occurrence(piano[k], 2)
+            # method returns -1 if there isn't any 2 inside the list (-> there isn't any grand staff)
+            if pos_gs_index == -1:
+                # move the i pointer
+                i += sum(piano[k])
+                continue
+
+            if pos_gs_index > 0:
+                i += sum(piano[k][:pos_gs_index])
+
+            # create grand staff annotation
+            x, y, width, height, _, _ = LabelUtils.find_bbox_for_multiples_bboxes(cur_s_s[i:i + 2])
+            self._grand_staff.append(Label(index, x, y, width, height))
+
+            i += 2
+            i += sum(piano[k][pos_gs_index + 1:])
+
+    @staticmethod
+    def _get_index_of_last_occurrence(dataset: list[T], item: T) -> int:
+        for i in reversed(range(len(dataset))):
+            if dataset[i] == item:
+                return i
+        return -1
 
     def _get_all_loaded_labels(self):
         return [self._system_measures,
@@ -168,16 +183,16 @@ class Sheet(LabelKeeper):
                 self._staves,
                 self._staff_systems,
                 self._grand_staff]
-    
+
     def _get_all_loaded_labels_with_names(self) -> tuple[list[list[Label]], list[str]]:
         return zip(self._get_all_loaded_labels(), Settings.LABELS)
-    
+
     def _get_all_coco_to_dict(self):
         output = []
         for labels, name in self._get_all_loaded_labels_with_names():
             output.append((name, [label.get_coco_to_dict() for label in labels]))
         return output
-    
+
     def get_coco_json_format(self, width: int, height: int) -> dict:
         output = {"width": width, "height": height}
 
@@ -185,7 +200,7 @@ class Sheet(LabelKeeper):
             output[name] = coords
 
         return output
-    
+
     def __str__(self) -> str:
         output = ""
         for labels, name in self._get_all_loaded_labels_with_names():
