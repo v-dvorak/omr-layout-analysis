@@ -1,98 +1,198 @@
-# What is (not) annotated and why?
+# User Documentation
 
-A documents in which all labels are described to hopefully avoid any confusion why some objects are annotated the way they are and some are not.
+This documentation goes over repository structure and contents, setting up and using the scripts for dataset transformation and creation.
 
-In this dataset we distinguish between five musical objects:
+Links to important parts and other docs:
 
-## Staff
+- [Dataset creation](#build-the-final-dataset) - how to create the dataset on which the model was trained
+- TODO [Technical documentation]() - deep dive into the inner workings of this app
+- [Model usage](https://docs.ultralytics.com/modes/predict/) - how to make predictions using the provided model, official YOLO docs
+- [Model training](https://docs.ultralytics.com/modes/train/) - official YOLO docs
 
-- has five parallel lines that are all the same length
-- has to be associated with any notes, music
-- music does not have to be included through the whole length of the staff
+## Build the final dataset
 
-### Examples
+How to create the dataset on which the model was trained.
 
-- ✅ this is a valid staff in its whole length, even though there is no music at the end:
+:warning: This part requires a reliable internet connection and will take multiple hours to finish.
 
-![](/docs/examples/valid_staff.png)
+### Download repository and create a virtual env
 
-- ❌ all of these are not valid staves, there is no music associated with them:
+```
+# create new virtual environment
+python -m venv /path/
+# activate the environment
+source /path/bin/activate
+# install required modules from requirements.txt
+pip install -r requirements.txt
+```
 
-![](/docs/examples/invalid_staff.png)
+### Build dataset
 
-## Staff Measure
+Make sure you have the virtual env activated than use this script that can be run from any directory:
 
-- is a one measure of a staff
-- is between two bar lines
-- the first measure starts at the start (left) of the staff, last measure ends by last bar line or by the end of the staff[^1]
-- there has to be music in the measure
+```
+path_to_repo/scripts/buíld
+```
 
-[^1] Even thought scores from OsLiC that are missing ending bar lines are ruled out for the sake of keeping the code relatively simple.
+The final dataset can be found afterwards at `/datasets`.
 
-### Examples
+(For smooth usage, please, use Linux or PowerShell if on Windows.)
 
-- ✅ this is a valid staff measure, there is music at the start:
+### Model training
 
-![](/docs/examples/valid_staff_measure.png)
+See [official YOLO docs](https://docs.ultralytics.com/modes/train/).
 
-- ❌ this is and invalid staff measure, there is no music:
+## Datasets download
 
-![](/docs/examples/invalid_staff_measure.png)
+Download datasets on which the model was trained.
 
-## System Measure
+:warning: This part requires a reliable internet connection.
 
-- is a unification of staff measures that are played at the same time
+### Download repository and create a virtual env
 
-### Examples
+```
+# create new virtual environment
+python -m venv /path/
+# activate the environment
+source /path/bin/activate
+# install required modules from requirements.txt
+pip install -r requirements.txt
+```
 
-- ✅ this is a valid system measure, all and only the music highlighted is played at the same time
+### Download datasets
 
-![](/docs/examples/valid_system_measure.png)
+Make sure you have the virtual env activated than use this script that can be run from any directory:
 
-- ❌ this is an invalid system measure, staff measures played at different times are included:
+```
+path_to_repo/scripts/download
+```
 
-![](/docs/examples/invalid_system_measure.png)
+## Build custom dataset
 
-## System
+- [How to work with other datasets than those provided by default](../app/DatasetClasses/README.md#work-with-other-datasets-than-those-provided-by-default)
 
-- includes every system measure on at the same height on the page
-- is a unification of staves
+Given paths to datasets, which can be both provided by default
+or added by user, creates a file system for training the YOLOv8 model, including a config `.yaml` file.
 
-### Examples
+### Options
 
-- ✅ this is a valid system, staves have to included in their whole length:
+- `-c COUNT, --count COUNT`
+    - How many files from each dataset will be processed. Default is all.
+- `--split SPLIT`
+  - Train test split ratio.
+- `-l [LABELS ...], --labels [LABELS ...]`
+  - List of labels to process: `0 : system_measures, 1 : stave_measures, 2 : staves, 3 : systems, 4 : grand staff`.
+- `--deduplicate`
+  - Checks for possible duplicates in labels and removes them. May affect performance.
+- `--tag`
+  - Tags generated files with dataset nickname. Example: `"al2_filename"`.
+  - Default is all.
+- `--stad [STAD ...]`
+  - Paths to standard COCO dataset to be processed.
+- `--al2`, `--mpp`, etc.
+  - Includes the dataset into final dataset.
+  - These are loaded automatically from their respective classes.
+  - The selection can be expanded by user, for that see [this](#work-with-other-datasets-than-those-provided-by-default).
 
-![](/docs/examples/valid_system.png)
+### Example usage
+```
+python3 -m app my_test --split 0.8 --al2 --mpp --stad my_standard_dataset -l 0 2
+```
 
-- ❌ this is an invalid system, music that does not play at the same time is included:
+This will take records from the `AudioLabs v2`, `Muscima++` and user specified standard dataset
+and divide them in the ratio of `0.8`, using only labels `0` and `2`. I will create this file structure:
 
-![](/docs/examples/invalid_system.png)
+```
+Test
+├─ images
+│  ├─ train
+│  ├─ val
+├─ labels
+│  ├─ train
+│  ├─ val
+├─ config.yaml
+```
 
-- ❌ this is an invalid system, music that plays at the same time is not included:
+If the `--split` option is not used the file structure looks like this:
 
-![](/docs/examples/invalid_system2.png)
+```
+Test
+├─ images
+├─ labels
+├─ config.yaml
+```
 
-## Grand Staff
+## Annotations
 
-- is a unification of staves that are connected together by a single brace at the start of these staves
-- the staves inside grand staff aare inseparable in the means of an instruments with which this grand staff is associated
-- other brackets and configurations are no considered because:
-  - other brackets are usually unions of instruments that need only one staff to be played fully[^2]
-  - knowing which staff belongs to which instrument is an information that is outside the scope of this project, identifying piano (and similar instruments) is necessary because of the inseparability
+- [What is (not) annotated and why?](annot_reference)
+- [PianoMaker](../app/PianoMaker/README.md) - a small app that allows grand staff and staff system labels to be added into an already existing dataset
 
-[^2] Consider a string quartet, you can play these instruments individually, but you can't play the piano fully if given a one staff.
+### YOLO format
+
+- `*.txt` file
+- one row per object
+- `class x_center y_center width height` format, relative to width and height
+- in this project, all numbers are rounded up to exactly 6 decimal places
 
 
-### Brace Example
+> **From the YOLO docs**: Labels for this format should be exported to YOLO format with one *.txt file per image. If there are no objects in an image, no *.txt file is required.
 
-- brace SVG signatures can be found in [this code file](../app/Synthetic/AnnotExtraction/FindGrandStaff.py)
+Even though YOLO does not need annotation files for empty (negative) sample images, they are included in final datasets, for simplicity.
 
-- ❌ ✅ here is an example of both valid and invalid braces, note that the invalid one (the first one) has a slightly different shape and is not associated with a score for piano
+#### Example
 
-![](/docs/examples/braces.png)
+```
+0	0.578523	0.894962	0.131544	0.082700
+0	0.717450	0.894962	0.140940	0.082700
+0	0.869128	0.894962	0.159732	0.082700
+1	0.153691	0.098859	0.208054	0.028517
+1	0.324161	0.098859	0.130201	0.028517
+1	0.461074	0.098859	0.138255	0.028517
+```
 
-### Examples
+For more see [official YOLO docs](https://docs.ultralytics.com/datasets/detect/).
 
-- ❌ ✅ first object is not a grand staff because it is not connected by the correct brace/bracket
+### COCO format
 
-![](/docs/examples/grand_staff.png)
+- `*.json` file
+- `left top width height` format in absolute numbers, `top left` are the `x y` coordinates from the top left corner of the uppermost leftmost corner of the bounding box
+
+#### Example
+
+```json
+{
+    "width": 745,
+    "height": 1053,
+    "system_measures": [
+    {
+        "left": 44,
+        "top": 76,
+        "width": 107,
+        "height": 101
+    },
+    {
+        "left": 153,
+        "top": 76,
+        "width": 76,
+        "height": 101
+    }, 
+    ...
+}
+```
+
+For more see [COCO dataset format](https://cocodataset.org/#format-data).
+
+## Get MuseScore
+
+Download [MuseScore](https://musescore.org) and replace the path in `app/Utils/Setting.py`:
+
+```python
+# TODO: path to a Musescore exe on you computer
+MUSESCORE_PATH = "F:/Programy/Musescore3/bin/MuseScore3.exe"
+```
+
+If on Linux try this:
+
+```
+xvfb-run -a ./MuseScore-version.AppImage --appimage-extract-and-run
+```
