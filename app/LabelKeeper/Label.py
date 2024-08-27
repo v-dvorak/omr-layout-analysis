@@ -2,6 +2,7 @@ class Label:
     """
     Stores information about a label/annotation in the COCO format.
     """
+
     def __init__(self, clss: int, x: int, y: int, width: int, height: int):
         self.clss: int = clss
         self.x: int = x
@@ -19,12 +20,21 @@ class Label:
         else:
             return self.height < other.height
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, self.__class__):
+            return False
+        return (self.clss == other.clss
+                and self.x == other.x
+                and self.y == other.y
+                and self.width == other.width
+                and self.height == other.height)
+
     def __str__(self) -> str:
         return f"c: {self.clss}, x: {self.x}, y: {self.y}, w: {self.width}, h: {self.height}"
-    
+
     def get_coco_coordinates(self):
         return [self.x, self.y, self.width, self.height]
-    
+
     def get_coco_label(self):
         """
         Returns label in the COCO format with classification.
@@ -33,7 +43,7 @@ class Label:
         - label in format `[class, x, y, width, height]`
         """
         return [self.clss, *self.get_coco_coordinates()]
-    
+
     def get_coco_to_dict(self):
         """
         Returns label in the COCO format without classification inside a dictionary
