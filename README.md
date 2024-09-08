@@ -9,8 +9,8 @@ Semester work at MFF CUNI under the guidance of Jirka Mayer.
 ## Quick start
 
 - [User documentation](docs/README.md)
-
 - [Download the latest dataset](https://github.com/v-dvorak/omr-layout-analysis/releases/tag/Latest) (~2.5 GB)
+- [Download the latest model](https://github.com/v-dvorak/omr-layout-analysis/releases/tag/Models) (~50 MB)
 
 ## Dataset overview
 
