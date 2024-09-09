@@ -62,12 +62,10 @@ The goal of this project is to create a music notation page analyzer that will s
 
 ## Acknowledgements
 
-- ### Staves and staff systems extraction from SVG
-
+1) Staves and staff systems extraction from SVG
   - by @Kristyna-Harvanova , the project can be found [here](https://github.com/Kristyna-Harvanova/Bachelor-Thesis)
 
-- ### Grand staff extraction from SVG
-
+2) Grand staff extraction from SVG
   - by @Jirka-Mayer , the project can be found [here](https://github.com/ufal/olimpic-icdar24)
 
 ## References
@@ -107,6 +105,10 @@ Muscima++ takes empty staves as valid staves, we only consider staves with some 
 System are mainly created by looking at system staves at approximately the same height that are than connected to one (system) bounding box. Because M++ is handwritten, not all system measures end at the end of their respectable staves, this leads to a creation of systems, that may exclude a part of stave, that in reality is a part of the system.
 
 ## Changelog
+
+- **September 2024**
+  - added random shuffling to train/test split
+  - added `seed` option
 
 - **August 2024**
   - complete dataset made public in Releases
