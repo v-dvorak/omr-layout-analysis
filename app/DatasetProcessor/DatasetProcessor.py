@@ -110,16 +110,7 @@ class DatasetProcessor:
         dat.process_file_dump(all_images_paths, all_labels_paths)
         return dat
 
-    def process_all_datasets(self, datasets: list[Dataset_OMR]):
-        """
-        Iterates through all datasets given at initialization and processes them.
-        """
-        for dataset in datasets:
-            self.process_dataset_from_fls(dataset)
-
-        print("Job finished successfully, results are in:", Path(self._file_struct.output).absolute().resolve())
-
-    def process_dataset_from_fls(self, current_dataset: Dataset_OMR):
+    def process_dataset_from_fls(self, current_dataset: Dataset_OMR, seed: int = None):
         """
         Processes single given dataset using the given file structure.
 
@@ -134,13 +125,14 @@ class DatasetProcessor:
             tag = current_dataset.nickname + "_"
 
         if self._split is not None:
-            self.split_process_dataset(current_dataset, data_mixer, tag)
+            self.split_process_dataset(current_dataset, data_mixer, tag=tag, seed=seed)
         else:
-            self.count_process_dataset(current_dataset, data_mixer, tag)
+            self.count_process_dataset(current_dataset, data_mixer, tag=tag, seed=seed)
 
         print(f"Dataset {current_dataset.name} processed successfully.")
 
-    def process_dataset_from_path(self, data_path: Path, current_dataset: Dataset_OMR = StandardCOCO()):
+    def process_dataset_from_path(self, data_path: Path,
+                                  current_dataset: Dataset_OMR = StandardCOCO(), seed: int = None):
         """
         Processes single given dataset using the given path.
 
@@ -154,9 +146,9 @@ class DatasetProcessor:
             tag = current_dataset.nickname + "_"
 
         if self._split is not None:
-            self.split_process_dataset(current_dataset, data_mixer, tag)
+            self.split_process_dataset(current_dataset, data_mixer, tag=tag, seed=seed)
         else:
-            self.count_process_dataset(current_dataset, data_mixer, tag)
+            self.count_process_dataset(current_dataset, data_mixer, tag=tag, seed=seed)
 
         print(f"Standard dataset at {data_path} processed successfully.")
 
@@ -196,7 +188,8 @@ class DatasetProcessor:
                 maker_mode=current_dataset.maker_mode
             )
 
-    def count_process_dataset(self, current_dataset: Dataset_OMR, data_mixer: DataMixer, tag: str = ""):
+    def count_process_dataset(self, current_dataset: Dataset_OMR, data_mixer: DataMixer,
+                              tag: str = "", seed: int = None):
         """
         Processes single given dataset, takes only first `count` of records.
         `count` is given at initialization.
@@ -212,13 +205,14 @@ class DatasetProcessor:
         if self._count is None:
             to_process = data_mixer.get_all_data()
         else:
-            to_process = data_mixer.get_part_of_data(whole_part=self._count)
+            to_process = data_mixer.get_part_of_data(whole_part=self._count, seed=seed)
 
         self._process_part_of_dataset(current_dataset, to_process,
                                       self._file_struct.image, self._file_struct.label,
                                       tag)
 
-    def split_process_dataset(self, current_dataset: Dataset_OMR, data_mixer: DataMixer, tag: str = ""):
+    def split_process_dataset(self, current_dataset: Dataset_OMR,
+                              data_mixer: DataMixer, tag: str = "", seed: int = None):
         """
         Processes single given dataset, splits records into train and test file by the `split` ratio.
         `split` is given at initialization.
@@ -231,7 +225,7 @@ class DatasetProcessor:
         - optional:
             - tags generated files at the beginning of their name with dataset nickname, e.g.: `\"al2_filename\"`
         """
-        data = data_mixer.train_test_split(ratio=self._split)
+        data = data_mixer.train_test_split(ratio=self._split, seed=seed)
         # TRAIN
         self._process_part_of_dataset(current_dataset, data[0],
                                       self._file_struct.image, self._file_struct.label,

@@ -1,5 +1,5 @@
 from pathlib import Path
-from random import shuffle
+import random
 
 from .DatoInfo import DatoInfo
 from ..Utils.FileUtils import get_file_name_from_path
@@ -82,13 +82,6 @@ class DataMixer:
         """
         return len(self._data)
 
-    def _shuffle_data(self):
-        """
-        Shuffles data in the internal database randomly.
-        Based on `shuffle` from the `random` library.
-        """
-        shuffle(self._data)
-
     @staticmethod
     def _check_ratio_in_bounds(ratio: float) -> bool:
         """
@@ -107,20 +100,28 @@ class DataMixer:
                   f"database ({len(self._data)}).\n{len(self._data)} files will be returned.")
         return True
 
-    def train_test_split(self, ratio: float = 0.9) -> tuple[list[DatoInfo], list[DatoInfo]]:
+    def train_test_split(self, ratio: float = 0.9, seed: int = None) -> tuple[list[DatoInfo], list[DatoInfo]]:
         """
         Splits the internal database by a given ration (default is 0.9) and returns them.
         The lengths of returned lists are: `total_length * ratio` and `total_length * (1 - ratio)`.
 
         Args:
         - ratio (optional) of two lengths of the two sets returned
+        - seed (optional) seed for random number generator
         """
         self._check_ratio_in_bounds(ratio)
         self._clean_up()
+
+        shuffled_data = self._data.copy()
+        if seed is not None:
+            random.Random(seed).shuffle(shuffled_data)
+        else:
+            random.shuffle(shuffled_data)
+
         split_index = round(len(self._data) * ratio)
-        return (self._data[:split_index], self._data[split_index:])
+        return shuffled_data[:split_index], shuffled_data[split_index:]
     
-    def get_part_of_data(self, ratio: float = None, whole_part: int = None) -> list[DatoInfo]:
+    def get_part_of_data(self, ratio: float = None, whole_part: int = None, seed: int = None) -> list[DatoInfo]:
         """
         Returns the requested part of the internal database.
         Length of list returned is `total_length * ratio` if ratio option is chosen,
@@ -128,9 +129,16 @@ class DataMixer:
         Returns the first N elements of the internal database.
         """
         self._clean_up()
+
+        shuffled_data = self._data.copy()
+        if seed is not None:
+            random.Random(seed).shuffle(shuffled_data)
+        else:
+            random.shuffle(shuffled_data)
+
         if ratio is not None:
             self._check_ratio_in_bounds(ratio)
-            return self._data[:round(len(self._data) * ratio)]
+            return shuffled_data[:round(len(self._data) * ratio)]
         elif whole_part is not None:
             self._check_whole_part_in_bounds(whole_part)
-            return self._data[:min(len(self._data), whole_part)]
+            return shuffled_data[:min(len(self._data), whole_part)]

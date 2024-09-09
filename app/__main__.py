@@ -30,6 +30,7 @@ parser.add_argument("-l", "--labels", nargs="+", help="Which labels to process. 
 parser.add_argument("--stad", nargs="+", help="Paths to standard COCO dataset.")
 parser.add_argument("--split", default=None, help="Train test split ratio.")
 parser.add_argument("--deduplicate", action="store_true", help="Checks for possible duplicates in labels and removes them. May affect performance.")
+parser.add_argument("--seed", default=None, type=int, help="Random seed for reproducibility.")
 
 # DATASETS ARGS INIT
 _dataset_database = Dataset_OMR.__subclasses__() # Python magic
@@ -102,6 +103,9 @@ if args.count is not None:
     if args.split is not None:
         print(f"WARNING ⚠️ : Split is set to {args.split}, Count will have no effect on output.")
 
+if args.seed is not None:
+    args.seed = int(args.seed)
+
 # DIRECTORIES INIT
 # set home for better navigation, everything is done in this working directory
 # HOME = Path.absolute(Path(args.output) / "..").resolve()
@@ -125,8 +129,8 @@ dp = DatasetProcessor(LABELS, file_struct,
                       split=args.split, count=args.count, deduplicate=args.deduplicate, tag=args.tag,
                       verbose=args.verbose)
 for dataset in datasets_to_work_with:
-    dp.process_dataset_from_fls(dataset)
+    dp.process_dataset_from_fls(dataset, seed=args.seed)
 for dataset_path in standard_datasets_to_work_with:
-    dp.process_dataset_from_path(dataset_path)
+    dp.process_dataset_from_path(dataset_path, seed=args.seed)
 
 print("Job finished successfully, results are in:", Path(file_struct.output).absolute().resolve())
