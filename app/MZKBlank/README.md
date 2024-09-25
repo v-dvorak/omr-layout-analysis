@@ -1,4 +1,4 @@
-# Negative samples (Background images)
+# MZKBlank (Background images)
 
 ## From the YOLO docs
 
@@ -6,30 +6,19 @@
 > Positives (FP). We recommend about 0-10% background images to help reduce FPs (COCO has 1000 background images for
 > reference, 1% of the total). No labels are required for background images.
 
-The final dataset will consist of approximately ten thousand images, that means that we'll need around one thousand
-background images.
+We plan for the dataset to consist of approximately ten thousand images, that means that we'll need around one thousand background images.
 
 ## Where do we get the images from?
 
-From Moravská zemská knihovna - MZK.
-
-Using
-the [MZK search engine](https://www.digitalniknihovna.cz/mzk/search?access=open&licences=public&doctypes=sheetmusic) we
-can search specifically for open and public sheet music, there are thousands of them. MZK implements the really nice and
-convenient to use [IIIF API](https://iiif.io/api/image/3.0/). There are only two problems with it:
-
-- I was not able to find any documentation on how to use this api to search for documents using filters. (Like "give me
-  IDs to all sheet music documents".)
-
-- Page labelling is not consistent and some page IDs end up raising 4xx or 5xx errors.
-
-### [How does MZKScraper work?](https://github.com/v-dvorak/mzkscraper/blob/main/docs/README.md)
+From Moravská zemská knihovna (MZK). Using
+the [MZK search engine](https://www.digitalniknihovna.cz/mzk/search?access=open&licences=public&doctypes=sheetmusic) we can search specifically for open and public sheet music, there are thousands of them. MZK implements the really nice and convenient to use [IIIF API](https://iiif.io/api/image/3.0/). But it does implement all features that I would like to use, so I created [MZKScraper](https://github.com/v-dvorak/mzkscraper/blob/main/docs/README.md).
 
 ## Numbers of representative images
 
-The number of representative images for each label was counted as $\left\lceil\frac{\#\text{ samples of label} \:
-\cdot \: \#\text{ images wanted}}{\#\text{ samples in total}}\right\rceil$, this ensures that the number of
-representative images in total is around the value we want (1000 images).
+The number of representative images for each label was counted as 
+`round_up(total samples of a label * images wanted / samples in total)`, so that the ratios between images inside the dataset are approximately same as in all the library.
+
+All used images are cited [here](./docs/citations.txt).
 
 For quick image overview see [image grids](./docs/README.md).
 
@@ -48,6 +37,20 @@ For quick image overview see [image grids](./docs/README.md).
 | table of contents        |    7     |
 | title page               |   212    |
 | **Total**                | **1006** |
+
+## Downloading the dataset
+
+Due to possible copyright issues, only page ids are publicly available and the user has to download them themselves.
+
+```bash
+# download
+python3 -m app.MZKBlank.download
+
+# create annotations (all will be emmpty)
+python3 -m app.MZKBlank.build
+```
+
+> Make sure, that you have reliable internet connection. Downloading images from the MZK might take some time.
 
 ## Labels provided by MZK
 

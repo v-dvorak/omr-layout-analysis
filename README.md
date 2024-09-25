@@ -11,6 +11,7 @@ Semester work at MFF CUNI under the guidance of Jirka Mayer.
 - [User documentation](docs/README.md)
 - [Download the latest dataset](https://github.com/v-dvorak/omr-layout-analysis/releases/tag/Latest) (~2.5 GB)
 - [Download the latest model](https://github.com/v-dvorak/omr-layout-analysis/releases/tag/Models) (~50 MB)
+- [MZKBlank dataset](app/MZKBlank/README.md)
 
 ## Dataset overview
 
@@ -109,6 +110,7 @@ System are mainly created by looking at system staves at approximately the same 
 - **September 2024**
   - added random shuffling to train/test split
   - added `seed` option
+  - unpublished MZKBlank
 
 - **August 2024**
   - complete dataset made public in Releases
