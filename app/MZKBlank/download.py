@@ -4,11 +4,11 @@ from tqdm import tqdm
 import json
 
 # load data
-with open("app/NegativeSamples/scraped_data/chosen.json", "r", encoding="utf8") as f:
+with open("app/MZKBlank/scraped_data/chosen.json", "r", encoding="utf8") as f:
     data = json.load(f)
 
 scraper = MZKScraper()
-OUTPUT_DIR = Path("datasets/NegativeSamples/img")
+OUTPUT_DIR = Path("datasets/MZKBlank/img")
 if OUTPUT_DIR.exists():
     print("Dataset already downloaded.")
     quit()

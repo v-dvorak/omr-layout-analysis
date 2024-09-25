@@ -5,7 +5,7 @@ import time
 from mzkscraper.Scraper import MZKScraper
 from mzkscraper.PageData import PageDataEncoder
 
-with open("app/NegativeSamples/valid_labels.json", "r", encoding="utf8") as f:
+with open("app/MZKBlank/valid_labels.json", "r", encoding="utf8") as f:
     labels = json.load(f)
 
 VALID_LABELS = labels["VALID_LABELS"]
@@ -13,7 +13,7 @@ VALID_LABELS = labels["VALID_LABELS"]
 scraper = MZKScraper()
 
 # GET PAGES FROM DOCUMENTS
-with open("app/NegativeSamples/scraped_data/documents.json", "r", encoding="utf8") as f:
+with open("app/MZKBlank/scraped_data/documents.json", "r", encoding="utf8") as f:
     document_ids = json.load(f)
 
 output = {
@@ -55,5 +55,5 @@ for document_id in tqdm(document_ids):
     except Exception as e:
         print(e)
 
-with open(f"app/NegativeSamples/scraped_data/pages.json", "w", encoding="utf-8") as f:
+with open(f"app/MZKBlank/scraped_data/pages.json", "w", encoding="utf-8") as f:
     json.dump(output, f, indent=4, cls=PageDataEncoder)

@@ -2,9 +2,9 @@ from . import ImageUtils
 import json
 from pathlib import Path
 
-DATASET_DIR = Path("datasets/NegativeSamples")
+DATASET_DIR = Path("datasets/MZKBlank")
 
-with open("app/NegativeSamples/scraped_data/chosen.json", "r", encoding="utf8") as f:
+with open("app/MZKBlank/scraped_data/chosen.json", "r", encoding="utf8") as f:
     data = json.load(f)
 
 dimensions = {
@@ -28,4 +28,4 @@ for key in data.keys():
 
     images = list(DATASET_DIR.rglob(f"{key}_*.png"))
     ImageUtils.combine_images_into_grid(images, *dimensions[key], size=(200, 200),
-                                        output_path=f"app/NegativeSamples/docs/{key}_grid.png")
+                                        output_path=f"app/MZKBlank/docs/{key}_grid.png")

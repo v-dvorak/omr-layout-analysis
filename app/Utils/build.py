@@ -32,12 +32,12 @@ def build():
 
     # create annotations for Negative Samples dataset
     print_header("Creating annotations for negative samples:")
-    os.system("python3 -m app.NegativeSamples.build")
+    os.system("python3 -m app.MZKBlank.build")
     print_done("Annotations created.")
 
     # collect all datasets and combine them into a single one
     print_header("Combining all datasets into one.")
     dataset_name = f"{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}_final_dataset"
     os.system(
-        f"python3 -m app ./datasets/{dataset_name} --stad ./datasets/al2_gs ./datasets/mpp_gs ./datasets/Lieder-main ./datasets/NegativeSamples")
+        f"python3 -m app ./datasets/{dataset_name} --stad ./datasets/al2_gs ./datasets/mpp_gs ./datasets/Lieder-main ./datasets/MZKBlank")
     print_done(f"Datasets combined successfully, the final dataset is at {Path(dataset_name).resolve().absolute()}")

@@ -9,5 +9,5 @@ def download():
     print_done("Datasets downloaded.")
 
     print_header("Downloading negative samples:")
-    os.system("python3 -m app.NegativeSamples.download")
+    os.system("python3 -m app.MZKBlank.download")
     print_done("Negative samples downloaded.")
