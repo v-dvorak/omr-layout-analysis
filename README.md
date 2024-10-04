@@ -45,14 +45,6 @@ For best training results 1-10\% of images in the dataset should be background i
 
 MZKBlank contains 1 006 semi-randomly chosen images that are related to sheet music but do not contain any sheet music. The numbers of representatives of one label are relative to the total number of pages.
 
-## Tools
-
-In addition to this dataset, multiple tools are provided
-
-- [`MZK scraper`](https://github.com/v-dvorak/mzkscraper), automatic retrieval of documents from MZK based on search query
-
-- [`PianoMaker`](app/PianoMaker/README.md) and `PianoAnnotator`, a small app that allows staff system and grand staff labels to be added into an already existing dataset
-
 ## Formal project specification
 
 Version in Czech is [here](docs/project_specification.pdf).
@@ -104,14 +96,3 @@ Gotham, M. R. H.; and Jonas, P. The OpenScore Lieder Corpus. In Münnich, S.; an
 Muscima++ takes empty staves as valid staves, we only consider staves with some music to be valid, this lead to multiple problems while working with M++ - empty staves are marked as valid. This has to be fixed mostly manually.
 
 System are mainly created by looking at system staves at approximately the same height that are than connected to one (system) bounding box. Because M++ is handwritten, not all system measures end at the end of their respectable staves, this leads to a creation of systems, that may exclude a part of stave, that in reality is a part of the system.
-
-## Changelog
-
-- **September 2024**
-  - added random shuffling to train/test split
-  - added `seed` option
-  - unpublished MZKBlank
-
-- **August 2024**
-  - complete dataset made public in Releases
-  - moved trained models from repository to Releases
