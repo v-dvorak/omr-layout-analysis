@@ -1,17 +1,20 @@
 # Analysis of music notation documents using the YOLO system
 
-This repository contains multiple tools for OMR dataset processing, the goal is to create a new dataset by combining AudioLabs v2, Muscima++, OSLiC and a custom dataset MZKBlank, on which the YOLOv8 model can be trained.
+This repository contains multiple tools for OMR dataset processing, the goal is to create a new dataset by combining AudioLabs v2, Muscima++, OSLiC and a custom dataset MZKBlank, that can be converted to multiple formats. The goal is to train the state-of-the-art models from YOLO on this dataset.
 
-In the final dataset, there are 7013 images that contain almost half a million bounding boxes.
+In the final dataset, there are 7013 images that contain almost half a million bounding boxes for staffs, staff measures, grand staffs, systems and system measures.
 
 Semester work at MFF CUNI under the guidance of Jirka Mayer.
+
+![](docs/prediction-showcase.png)
 
 ## Quick start
 
 - [User documentation](docs/README.md)
-- [Download the latest dataset](https://github.com/v-dvorak/omr-layout-analysis/releases/tag/Latest) (~2.5 GB)
-- [Download the latest model](https://github.com/v-dvorak/omr-layout-analysis/releases/tag/Models) (~50 MB)
+- [Download the latest dataset](https://github.com/v-dvorak/omr-layout-analysis/tree/datasets-release) (~2.5 GB)
+- [Download the latest model](https://github.com/v-dvorak/omr-layout-analysis/releases) (~50 MB)
 - [MZKBlank dataset](app/MZKBlank/README.md)
+- [Experiment results](https://github.com/v-dvorak/omr-layout-analysis/tree/evaluation-release)
 
 ## Dataset overview
 
@@ -45,21 +48,10 @@ For best training results 1-10\% of images in the dataset should be background i
 
 MZKBlank contains 1 006 semi-randomly chosen images that are related to sheet music but do not contain any sheet music. The numbers of representatives of one label are relative to the total number of pages.
 
-## Formal project specification
-
-Version in Czech is [here](docs/project_specification.pdf).
-
-Optical Music Recognition (OMR) is a task that aims to automatically recognize the musical content of a document from a photo or scan of music notation for further processing (search, printing, editing, musicological analysis). For processing existing archival materials in libraries, however, it is first necessary to distinguish whether a given page contains musical notation, or what kind of notation (modern, mensural, choral, printed, written). At the moment, the best recognition models work at the level of individual lines of notation, so it is also necessary to identify individual lines during the analysis of a document so that the music can be well processed by the recognition models.
-
-The goal of this project is to create a music notation page analyzer that will serve as a first stage in the automatic recognition of music notation pages. The analysis will be designed as an image object detection task, where the main goal will be to train (retrain) the state-of-the-art model YOLOv8. The focus of the work lies in the preparation of the training data, as it will be necessary to harmonize a number of existing datasets into a unified format with the possible inclusion of synthetic data. At the same time, it will be necessary to decide what parameters of musical notation to analyse - a compromise must be found between what we need to know and what we are able to learn from the available datasets.
-
 ## Acknowledgements
 
-1) Staves and staff systems extraction from SVG
-  - by @Kristyna-Harvanova , the project can be found [here](https://github.com/Kristyna-Harvanova/Bachelor-Thesis)
-
-2) Grand staff extraction from SVG
-  - by @Jirka-Mayer , the project can be found [here](https://github.com/ufal/olimpic-icdar24)
+- [Staves and staff systems extraction from SVG](https://github.com/Kristyna-Harvanova/Bachelor-Thesis), [Kristyna Harvanova](https://github.com/Kristyna-Harvanova)
+- [Grand staff extraction from SVG](https://github.com/ufal/olimpic-icdar24), [Jirka Mayer](https://github.com/Jirka-Mayer)
 
 ## References
 
