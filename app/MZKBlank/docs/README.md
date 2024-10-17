@@ -2,6 +2,8 @@
 
 All images are resized to have a 1:1 aspect ratio. Some images were dropped from the grids (usually less than ten) for the grid to have a nicer aspect ratio.
 
+Images displayed in this section are scanned documents from Moravska Zemska Knihovna, they are cited in [citation](docs/citations.txt).
+
 ## Back cover
 
 ![](back_cover_grid.png)

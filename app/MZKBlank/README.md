@@ -11,14 +11,12 @@ We plan for the dataset to consist of approximately ten thousand images, that me
 ## Where do we get the images from?
 
 From Moravská zemská knihovna (MZK). Using
-the [MZK search engine](https://www.digitalniknihovna.cz/mzk/search?access=open&licences=public&doctypes=sheetmusic) we can search specifically for open and public sheet music, there are thousands of them. MZK implements the really nice and convenient to use [IIIF API](https://iiif.io/api/image/3.0/). But it does implement all features that I would like to use, so I created [MZKScraper](https://github.com/v-dvorak/mzkscraper/blob/main/docs/README.md).
+the [MZK search engine](https://www.digitalniknihovna.cz/mzk/search?access=open&licences=public&doctypes=sheetmusic) we can search specifically for open and public sheet music, there are thousands of them. MZK implements the really nice and convenient to use [IIIF API](https://iiif.io/api/image/3.0/). I developed a lightweight Python API wrapper for MZK, the [MZKScraper](https://github.com/v-dvorak/mzkscraper/).
 
 ## Numbers of representative images
 
 The number of representative images for each label was counted as 
 `round_up(total samples of a label * images wanted / samples in total)`, so that the ratios between images inside the dataset are approximately same as in all the library.
-
-All used images are cited [here](./docs/citations.txt).
 
 For quick image overview see [image grids](./docs/README.md).
 
@@ -43,6 +41,9 @@ For quick image overview see [image grids](./docs/README.md).
 Due to possible copyright issues, only page ids are publicly available and the user has to download them themselves.
 
 ```bash
+# install the provided mzkscraper library into you venv
+pip install -e mzkscraper
+
 # download
 python3 -m app.MZKBlank.download
 
@@ -53,6 +54,8 @@ python3 -m app.MZKBlank.build
 > Make sure, that you have reliable internet connection. Downloading images from the MZK might take some time.
 
 ## Labels provided by MZK
+
+Images displayed in this section are scanned documents from Moravska Zemska Knihovna, the links lead directly to their source and their documents of origin are cited in [citation](docs/citations.txt).
 
 ### Accepted labels
 
